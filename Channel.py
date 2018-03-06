@@ -1,17 +1,18 @@
-class Channel:
+class ChannelRaid:
     """Classe definissant le contenu en cours des channels de raid:
     - NB_CHANNEL: nombre de channel construites par le bot
     - id: numero du cannal
-    - raid: descripsion du raid en cours, si raid = 0 alors c'est vide"""
+    - raid: descripsion du raid en cours, si raid = 0 alors c'est vide
+    - com: l'objet discord.channel qui permet de communiquer simplement avec le rest du forum"""
 
-    nbChannelMax = 5
-    NB_CHANNEL = 0
+    nb_channel = 0
 
-    def __init__(self, id):
+    def __init__(self, id, com):
         """initialisation d'une channel avec pour seul information son ID, le raid est initialisé à 0"""
         self.raid = 0
         self.id = id
-        Channel.NB_CHANNEL += 1
+        self.com = com
+        ChannelRaid.nb_channel += 1
 
     def ajouterRaid(self, raid):
         """ajoute un raid dans une channel libre
@@ -30,11 +31,11 @@ class Channel:
         return 1
 
     def channelLibre(channels):
-        """renvoit le plus petit numero de channel libre pour ajouter un nouveau canal
+        """renvoit la channel de plus petit numero libre pour ajouter un nouveau canal
         renvoit 0 sinon"""
-        for channel in channels:
+        for channel in channels.values():
             if channel.raid == 0:
-                return channel.id
+                return channel
         return 0
 
     def isRaid(self):

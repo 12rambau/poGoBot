@@ -14,7 +14,6 @@ class Raid:
     - eclosion: si c'est un oeuf on met l'heure d'éclosion
     - battlePlace: le lieu du raid"""
 
-    nb_salon = 5
     temps_presence = datetime.timedelta(minutes=45)
 
     def __init__(self, id, pokeId, capitaine, temps, battlePlace):
@@ -135,8 +134,11 @@ class Raid:
         return 0
 
     def choisirLaunch(self, battleTime):
-        """edite la date de lancement du raid"""
+        """edite la date de lancement du raid
+        renvoit 1 si la date est au bon format 0 sinon"""
+        #tester la validité de la date
         self.lancement = datetime.datetime.strptime(battleTime, "%H:%M")
+        return 1
 
     def faireEclore(self, pokeName):
         """eclosion d'un oeuf
@@ -155,8 +157,6 @@ class Raid:
 
         return 1
 
-
-
     def isOeuf (self):
         """test si le raid selectionné était un oeuf
         retour 1 si oui
@@ -168,3 +168,4 @@ class Raid:
 
 if __name__=="__main__":
     #debut des test unitaires
+    pass

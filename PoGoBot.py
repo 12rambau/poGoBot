@@ -12,21 +12,44 @@ from Channel import *
 Client = discord.Client()
 client = commands.Bot(command_prefix = "?")
 
+cookieCompteur = 0
+cRaids = {}
+activeChannels = client.get_all_channels()
+
+cAccueil = 0
+cRaidList = 0
+cDiscussion = 0
+cPokemon = 0
+cRaidAdd = 0
+
 
 @client.event
 async def on_ready():
 
-    global compteur
-    compteur = 0
+    #variable externes
+    global activesChannels
+    global cAccueil
+    global cRaidList
+    global cDiscussion
+    global cPokemon
+    global cRaidAdd
 
-    #creer les 5 channels qui seront utilisés par les joueurs
-    ich = 0
-    global channels
-    channels = []
-    while ich < Channel.nbChannelMax:
-        channels.append(Channel(ich+1))
-        ich += 1
-    print ("fin de la création des %i channels \n" %(Channel.nbChannelMax))
+    #on identifie tous les salon sur lesquel peut agir le bot
+    regex = re.compile(r"raid-[0-9]")
+    for cCurrent in activeChannels:
+        if cCurrent.name == "accueil":
+            cAccueil = cCurrent
+        elif cCurrent.name == "raid-list":
+            cRaidList = cCurrent
+        elif cCurrent.name == "discussion":
+            cDiscussion = cCurrent
+        elif cCurrent.name == "pokemon":
+            cPokemon = cCurrent
+        elif cCurrent.name == "raid-add":
+            cRaidAdd = cCurrent
+        elif regex.match(cCurrent.name):
+            num = int(cCurrent.name[5:])
+            cRaids[num]=ChannelRaid(num, cCurrent)
 
     print("Bot is ready and back online !")
 
@@ -72,76 +95,56 @@ async def on_ready():
 #ajout manuel d'evenement
 @client.event
 async def on_message(message):
-    global compteur
+
+    #variables externes
+    global cookieCompteur
+    global cRaidAdd
+    global cRaids
+
     args = message.content.split(" ")
-
     if message.content == "cookie":
-        compteur = compteur + 1
-        await client.send_message(message.channel, "%i :cookie:" %(compteur) )
+        cookieCompteur +=  1
+        await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
 
-    if (message.channel.name == "raid-add"):
-        if message.content.upper().startswith("ADD"):
-            if len(args) < 4:
-                return
-            #verifier que le pokemon existe
+    if (message.channel == cRaidAdd):
+        if message.content.lower().startswith("add") and not len(args) < 4:
             pokeName = args[1]
-            #verifier que l'heure a du sens
             battleTime = args[2]
-            #verifier que le lieu existe
             battlePlace = ' '.join(args[3:])
 
             #on cherche une conversation de libre
-            global channels
-            libre = Channel.channelLibre(channels)
-            if libre == 0:
+            libre = ChannelRaid.channelLibre(cRaids)
+            if not libre:
                 await client.send_message(message.channel, "tout est pris mon pote va jouer avec les autres")
                 return
-
-            activeChannels = client.get_all_channels()
-            for channel in activeChannels:
-                if channel.name == str("raid-%i" %(libre)):
-                    await client.send_message(message.channel, "j'ai trouvé une channel de libre")
-                    channelCom = channel
-
-                    raid = Raid(1,pokeName,message.author.nick, battleTime, battlePlace)
-                    channels[libre-1].ajouterRaid(raid)
-
-                    await client.send_message(channelCom, embed=raid.embed())
-                    break
-    #'edit'
-        # nom de l'arene
-        # nom du pokemon (l'arène doit être un oeuf et exister)
+            await client.send_message(message.channel, "j'ai trouvé une channel de libre")
+            raid = Raid(1,pokeName,message.author.nick, battleTime, battlePlace)
+            libre.ajouterRaid(raid)
+            await client.send_message(libre.com, embed=raid.embed())
 
     #écoute des channels de raid
     regex = re.compile(r"raid-[0-9]")
     if regex.match(message.channel.name):
         numRaid = int(message.channel.name[5:])
-        channel = channels[numRaid-1]
-        channelCom = message.channel
-        if channel.isRaid():
+        cCurrent = cRaids[numRaid]
+        if cCurrent.isRaid():
             if message.content.lower() == "in":
-                if not channel.raid.isParticipant(message.author.nick):
-                    channel.raid.ajouterParticipant(message.author.nick)
-                    await client.send_message(channelCom, embed=channel.raid.embed())
+                    if cCurrent.raid.ajouterParticipant(message.author.nick):
+                        await client.send_message(cCurrent.com, embed=cCurrent.raid.embed())
             elif message.content.lower() == "out":
-                if channel.raid.isParticipant(message.author.nick):
-                    channel.raid.retirerParticipant(message.author.nick)
-                    await client.send_message(channelCom, embed=channel.raid.embed())
+                if cCurrent.raid.retirerParticipant(message.author.nick):
+                     await client.send_message(cCurrent.com, embed=cCurrent.raid.embed())
             elif message.content.lower() == 'abort':
-                if message.author.nick == channel.raid.capitaine:
-                    if channel.retirerRaid():
-                        await client.send_message(channelCom, "le raid a été abandonné")
+                if message.author.nick == cCurrent.raid.capitaine:
+                    if cCurrent.retirerRaid():
+                        await client.send_message(cCurrent.com, "le raid a été abandonné")
             elif args[0] == "launch" and len(args) == 2:
-                channel.raid.choisirLaunch(args[1])
-                await client.send_message(channelCom, embed=channel.raid.embed())
+                battleTime = args[1]
+                if cCurrent.raid.choisirLaunch(battleTime):
+                    await client.send_message(cCurrent.com, embed=cCurrent.raid.embed())
             elif args[0].lower() == "edit" and len(args) == 2:
                 pokeName = args[1]
-                ierr = channel.raid.faireEclore(pokeName)
-                if not ierr:
-                    return
-                await client.send_message(channelCom, embed=channel.raid.embed())
-
-
-
+                if cCurrent.raid.faireEclore(pokeName):
+                    await client.send_message(cCurrent.com, embed=cCurrent.raid.embed())
 
 client.run(os.environ['DISCORD_TOKEN'])
