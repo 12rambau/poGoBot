@@ -1,1 +1,1 @@
-web: python PoGoBot.py
+bot: python PoGoBot.py
