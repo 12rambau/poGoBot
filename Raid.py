@@ -168,19 +168,3 @@ class Raid:
 
 if __name__=="__main__":
     #debut des test unitaires
-    print("on effectue les testes unitaires \n")
-
-    if Raid.lirePokeId(-50) != 0:
-        print ("FALSE conaissance des bornes des pokémons")
-    if Raid.lirePokeId("T2") != -2:
-        print ("FALSE lecture des oeufs")
-    if Raid.lirePokeId("T20") != 0:
-        print ("FALSE connaissance des bornes des oeufs")
-    if Raid.lirePokeId("T2T") != 0:
-        print ("FALSE lecture d'un mauvais oeuf")
-    if Raid.lirePokeId("florizarre") != 3:
-        print ("FALSE ne sait pas lire un pokemon")
-    if Raid.lirePokeId("blastoise") != 9:
-        print("FALSE ne sait pas lire l'anglais")
-    if Raid.lirePokeId('RATTAta') != 19:
-        print("FALSE tient compte de la casse")
