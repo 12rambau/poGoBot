@@ -89,7 +89,7 @@ class Raid:
         elif self.pokeId == -2 or self.pokeId == -1:
             url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Normal-Egg-Pink.png"
         embed.set_thumbnail(url=url)
-        field = str("capitaine: @%s \n" %(self.capitaine))
+        field = str("capitaine: @%s \n" %(self.capitaine.nick))
         if self.lancement == 0:
             field += str("lancement: ? \n")
         else:
@@ -101,7 +101,9 @@ class Raid:
         field += str("%i participants \n" %(len(self.participants)))
         embed.add_field(name=self.battlePlace.lower(), value=field)
 
-        listParticipant = "@"+str(' @'.join(self.participants))
+        listParticipant = ""
+        for participant in self.participants:
+            listParticipant += str("@%s" %(participant.nick))
         embed.set_footer(text=listParticipant)
 
         return embed

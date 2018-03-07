@@ -128,7 +128,7 @@ async def on_message(message):
             cCom = await client.create_channel(server, str("%i_%s-0" %(ChannelRaid.nb_channel+1,pokeName)))
             cRaids[ChannelRaid.nb_channel] = ChannelRaid(cCom)
 
-            raid = Raid(0,pokeName,message.author.nick, battleTime, battlePlace)
+            raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
             cRaid = cRaids[ChannelRaid.nb_channel].ajouterRaid(raid)
 
             await addToListe(cRaid)
@@ -142,19 +142,19 @@ async def on_message(message):
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
             if message.content.lower() == "in":
-                    if cCurrent.raid.ajouterParticipant(message.author.nick):
+                    if cCurrent.raid.ajouterParticipant(message.author):
                         await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
                         await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
                         await editListe(cCurrent)
                         await client.delete_message(message)
             elif message.content.lower() == "out":
-                if cCurrent.raid.retirerParticipant(message.author.nick):
+                if cCurrent.raid.retirerParticipant(message.author):
                      await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
                      await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
                      await editListe(cCurrent)
                      await client.delete_message(message)
             elif message.content.lower() == 'abort':
-                if message.author.nick == cCurrent.raid.capitaine:
+                if message.author == cCurrent.raid.capitaine:
                     if cCurrent.retirerRaid():
                         cId = cCurrent.com.id
                         await removeFromListe(cCurrent)
@@ -173,5 +173,12 @@ async def on_message(message):
                     await client.edit_channel(cCurrent.com, name=re.sub(r"_[a-z0-9]*-", str("_%s-" %(pokedex[cCurrent.raid.pokeId-1]["fr"])), cCurrent.com.name))
                     await editListe(cCurrent)
                     await client.delete_message(message)
+            elif args[0].lower() == "dispo" and len(args) == 2:
+                userId = args[1].replace('<@', '').replace('>', '')
+                if cCurrent.raid.ajouterParticipant(next( m for m in client.get_all_members() if m.id == userId)):
+                    await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
+                    await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
+                    await editListe(cCurrent)
+
 
 client.run(os.environ['DISCORD_TOKEN'])
