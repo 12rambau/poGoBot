@@ -25,7 +25,7 @@ cRaidAdd = 0
 
 def is_bot(m):
     global msgRaid
-    return m.content != msgRaid.content
+    return m.author.name != "PoGoBot"
 
 async def addToListe(cRaid):
     """ajoute un raid à la liste des raids"""
@@ -35,7 +35,27 @@ async def addToListe(cRaid):
 
     await client.purge_from(cRaidAdd, check=is_bot)
     msg = str("raid en cour sur #%i_%s-%i" %(cRaid.id, pokedex[cRaid.raid.pokeId-1]["fr"], len(cRaid.raid.participants)))
-    await client.send_message(cRaidAdd, content=msg, embed=cRaid.raid.embed())
+    msg = await client.send_message(cRaidAdd, content=msg, embed=cRaid.raid.embed())
+    cRaid.listMsg = msg
+
+async def editListe(cRaid):
+    """editer le message corresponant au raid selectionné"""
+    msg = str("raid en cour sur #%i_%s-%i" %(cRaid.id, pokedex[cRaid.raid.pokeId-1]["fr"], len(cRaid.raid.participants)))
+    await client.edit_message(cRaid.listMsg, new_content=msg, embed=cRaid.raid.embed())
+
+
+async def removeFromListe(cRaid):
+    """retirer un raid périmé ou abandonné"""
+
+    #variable globales
+    global cRaidAdd
+
+    await client.delete_message(cRaid.listMsg)
+
+
+
+
+    return 0
 
 @client.event
 async def on_ready():
@@ -54,6 +74,7 @@ async def on_ready():
 
     #on identifie tous les salon sur lesquel peut agir le bot
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
+    cIds = []
     for cCurrent in client.get_all_channels():
         if cCurrent.name == "accueil":
             cAccueil = cCurrent
@@ -67,10 +88,12 @@ async def on_ready():
             cRaidAdd = cCurrent
             await client.purge_from(cRaidAdd)
         elif regex.match(cCurrent.name):
-            cId = cCurrent.id
+            cIds.append(cCurrent.id)
+
+        for cId in cIds:
             await client.delete_channel(client.get_channel(cId))
     activeChannels = client.get_all_channels()
-    
+
     #ecrire le message initiale des raid
     msgRaid = await client.send_message(cRaidAdd, "liste des raides en cours")
 
@@ -147,7 +170,7 @@ async def on_message(message):
             await addToListe(cRaid)
             msg = await client.send_message(cCom, embed=raid.embed())
             await client.pin_message(msg)
-            cRaid.msg = msg
+            cRaid.pinMsg = msg
 
     #écoute des channels de raid
     elif regex.match(message.channel.name):
@@ -156,34 +179,39 @@ async def on_message(message):
         if cCurrent.isRaid():
             if message.content.lower() == "in":
                     if cCurrent.raid.ajouterParticipant(message.author.nick):
-                        await client.edit_message(cCurrent.msg, embed=cCurrent.raid.embed())
+                        await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
                         await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
+                        await editListe(cCurrent)
                         await client.delete_message(message)
 
             elif message.content.lower() == "out":
                 if cCurrent.raid.retirerParticipant(message.author.nick):
-                     await client.edit_message(cCurrent.msg, embed=cCurrent.raid.embed())
+                     await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
                      await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
+                     await editListe(cCurrent)
                      await client.delete_message(message)
             elif message.content.lower() == 'abort':
                 if message.author.nick == cCurrent.raid.capitaine:
                     if cCurrent.retirerRaid():
                         cId = cCurrent.com.id
+                        await removeFromListe(cCurrent)
                         await client.delete_channel(client.get_channel(cId))
                         cCurrent = 0
 
             elif args[0] == "launch" and len(args) == 2:
                 battleTime = args[1]
                 if cCurrent.raid.choisirLaunch(battleTime):
-                    await client.edit_message(cCurrent.msg, embed=cCurrent.raid.embed())
+                    await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
+                    await editListe(cCurrent)
                     await client.delete_message(message)
 
             elif args[0].lower() == "edit" and len(args) == 2:
                 print (args[1])
                 pokeName = args[1]
                 if cCurrent.raid.faireEclore(pokeName):
-                    await client.edit_message(cCurrent.msg, embed=cCurrent.raid.embed())
+                    await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
                     await client.edit_channel(cCurrent.com, name=re.sub(r"_[a-z0-9]*-", str("_%s-" %(pokedex[cCurrent.raid.pokeId-1]["fr"])), cCurrent.com.name))
+                    await editListe(cCurrent)
                     await client.delete_message(message)
 
 
