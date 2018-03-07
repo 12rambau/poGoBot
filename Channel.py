@@ -3,7 +3,8 @@ class ChannelRaid:
     - NB_CHANNEL: nombre de channel construites par le bot
     - id: numero du cannal
     - raid: descripsion du raid en cours, si raid = 0 alors c'est vide
-    - com: l'objet discord.channel qui permet de communiquer simplement avec le rest du forum"""
+    - com: l'objet discord.channel qui permet de communiquer simplement avec le rest du forum
+    - msg: message decrivant le raid de la channel (c'est plus simple que de le chercher)"""
 
     nb_channel = 0
 
@@ -12,6 +13,7 @@ class ChannelRaid:
         self.raid = 0
         self.id = id
         self.com = com
+        self.msg = 0
         ChannelRaid.nb_channel += 1
 
     def ajouterRaid(self, raid):
