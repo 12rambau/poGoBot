@@ -35,13 +35,13 @@ async def addToListe(cRaid):
     global cRaidAdd
 
     await client.purge_from(cRaidAdd, check=is_bot)
-    msg = str("raid en cour sur #%i_%s-%i" %(cRaid.id, pokedex[cRaid.raid.pokeId-1]["fr"], len(cRaid.raid.participants)))
-    msg = await client.send_message(cRaidAdd, content=msg, embed=cRaid.raid.embed())
+    content = str("raid en cour sur <#%s>" %(cRaid.com.id))
+    msg = await client.send_message(cRaidAdd, content=content, embed=cRaid.raid.embed())
     cRaid.listMsg = msg
 
 async def editListe(cRaid):
     """editer le message corresponant au raid selectionné"""
-    msg = str("raid en cour sur #%i_%s-%i" %(cRaid.id, pokedex[cRaid.raid.pokeId-1]["fr"], len(cRaid.raid.participants)))
+    msg = str("raid en cour sur <#%s>" %(cRaid.com.id))
     await client.edit_message(cRaid.listMsg, new_content=msg, embed=cRaid.raid.embed())
 
 async def removeFromListe(cRaid):
@@ -167,13 +167,11 @@ async def on_message(message):
                     await editListe(cCurrent)
                     await client.delete_message(message)
             elif args[0].lower() == "edit" and len(args) == 2:
-                print (args[1])
                 pokeName = args[1]
                 if cCurrent.raid.faireEclore(pokeName):
                     await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
                     await client.edit_channel(cCurrent.com, name=re.sub(r"_[a-z0-9]*-", str("_%s-" %(pokedex[cCurrent.raid.pokeId-1]["fr"])), cCurrent.com.name))
                     await editListe(cCurrent)
                     await client.delete_message(message)
-
 
 client.run(os.environ['DISCORD_TOKEN'])
