@@ -152,7 +152,10 @@ async def on_message(message):
             elif message.content.lower() == 'abort':
                 if message.author.nick == cCurrent.raid.capitaine:
                     if cCurrent.retirerRaid():
-                        await client.send_message(cCurrent.com, "le raid a été abandonné")
+                        cId = cCurrent.com.id
+                        await client.delete_channel(client.get_channel(cId))
+                        cCurrent = 0
+
             elif args[0] == "launch" and len(args) == 2:
                 battleTime = args[1]
                 if cCurrent.raid.choisirLaunch(battleTime):
