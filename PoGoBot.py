@@ -109,6 +109,7 @@ async def on_message(message):
     global cRaidAdd
     global cRaids
     global cRaidList
+    global cAccueil
 
     args = message.content.split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
@@ -117,7 +118,7 @@ async def on_message(message):
         await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
         await client.delete_message(message)
 
-    elif (message.channel == cRaidAdd):
+    elif message.channel == cRaidAdd:
         if message.content.lower().startswith("add") and not len(args) < 4:
             pokeName = args[1]
             battleTime = args[2]
@@ -133,6 +134,21 @@ async def on_message(message):
             msg = await client.send_message(cCom, embed=raid.embed())
             await client.pin_message(msg)
             cRaid.pinMsg = msg
+
+    #on écoute la channel d'accueil
+    elif message.channel == cAccueil:
+        if message.content.startswith("lvl") and len(args) == 2:
+            lvl = args[1]
+            regex = re.compile(r"^.* \([0-9]*\)$")
+            print(message.author.nick)
+            if regex.match(message.author.nick):
+                newNick = re.sub(r"\([0-9]*\)$", str("(%s)" %(lvl)), message.author.nick)
+            else:
+                newNick = message.author.nick
+                newNick += str(" (%s)" %(lvl))
+            print(newNick)
+            await client.change_nickname(message.author, newNick)
+
 
     #écoute des channels de raid
     elif regex.match(message.channel.name):
@@ -204,5 +220,5 @@ async def on_reaction_remove(reaction, user):
                     await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
                     await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
                     await editListe(cCurrent)
-                    
+
 client.run(os.environ['DISCORD_TOKEN'])
