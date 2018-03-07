@@ -8,21 +8,22 @@ class ChannelRaid:
 
     nb_channel = 0
 
-    def __init__(self, id, com):
+    def __init__(self, com):
         """initialisation d'une channel avec pour seul information son ID, le raid est initialisé à 0"""
         self.raid = 0
-        self.id = id
+        self.id = ChannelRaid.nb_channel + 1
         self.com = com
         self.msg = 0
         ChannelRaid.nb_channel += 1
 
     def ajouterRaid(self, raid):
         """ajoute un raid dans une channel libre
-        retourne 1 si l'ajout a marché
+        retourne le raid si l'ajout a marché
         retourn 0 sinon"""
         if self.raid == 0:
             self.raid = raid
-            return 1
+            raid.id = self.id
+            return self
 
         return 0
 

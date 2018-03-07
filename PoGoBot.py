@@ -23,16 +23,19 @@ cDiscussion = 0
 cPokemon = 0
 cRaidAdd = 0
 
-async def reecrireListe():
+def is_bot(m):
+    global msgRaid
+    return m.content != msgRaid.content
+
+async def addToListe(cRaid):
+    """ajoute un raid à la liste des raids"""
 
     #variables externes
-    global cRaidList
-    global cRaids
+    global cRaidAdd
 
-    await client.purge_from(cRaidList)
-
-    print('coucou')
-    print (cRaidList.name)
+    await client.purge_from(cRaidAdd, check=is_bot)
+    msg = str("raid en cour sur #%i_%s-%i" %(cRaid.id, pokedex[cRaid.raid.pokeId-1]["fr"], len(cRaid.raid.participants)))
+    await client.send_message(cRaidAdd, content=msg, embed=cRaid.raid.embed())
 
 @client.event
 async def on_ready():
@@ -44,6 +47,7 @@ async def on_ready():
     global cPokemon
     global cRaidAdd
     global server
+    global msgRaid
 
     #recuperer le server
     server = client.get_server(os.environ["DISCORD_SERVER_ID"])
@@ -62,6 +66,10 @@ async def on_ready():
             cPokemon = cCurrent
         elif cCurrent.name == "raid-add":
             cRaidAdd = cCurrent
+            await client.purge_from(cRaidAdd)
+
+    #ecrire le message initiale des raid
+    msgRaid = await client.send_message(cRaidAdd, "liste des raides en cours")
 
     print("Bot is ready and back online !")
 
@@ -127,17 +135,16 @@ async def on_message(message):
             battleTime = args[2]
             battlePlace = ' '.join(args[3:])
 
-            cRaid = await client.create_channel(server, str("%i_%s-0" %(ChannelRaid.nb_channel+1,pokeName)))
-            cRaids[ChannelRaid.nb_channel] = ChannelRaid(ChannelRaid.nb_channel, cRaid)
+            cCom = await client.create_channel(server, str("%i_%s-0" %(ChannelRaid.nb_channel+1,pokeName)))
+            cRaids[ChannelRaid.nb_channel] = ChannelRaid(cCom)
 
-            raid = Raid(1,pokeName,message.author.nick, battleTime, battlePlace)
-            cRaids[ChannelRaid.nb_channel].ajouterRaid(raid)
+            raid = Raid(0,pokeName,message.author.nick, battleTime, battlePlace)
+            cRaid = cRaids[ChannelRaid.nb_channel].ajouterRaid(raid)
 
-            #reecrireListe()
-            msg = await client.send_message(cRaid, embed=raid.embed())
+            await addToListe(cRaid)
+            msg = await client.send_message(cCom, embed=raid.embed())
             await client.pin_message(msg)
-            cRaids[ChannelRaid.nb_channel].msg = msg
-            await client.delete_message(message)
+            cRaid.msg = msg
 
     #écoute des channels de raid
     elif regex.match(message.channel.name):
