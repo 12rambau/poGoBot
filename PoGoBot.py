@@ -8,6 +8,7 @@ import re
 import os
 from Raid import *
 from Channel import *
+from data import *
 
 Client = discord.Client()
 client = commands.Bot(command_prefix = "?")
@@ -97,7 +98,6 @@ async def on_ready():
     msgRaid = await client.send_message(cRaidAdd, "liste des raides en cours")
 
     print("Bot is ready and back online !")
-
 
 # timer toutes les minutes parcourir les raids
     # si heure de fin dépassée alors on libere le salon

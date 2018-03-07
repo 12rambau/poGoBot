@@ -1,7 +1,7 @@
 import time
 import datetime
 import re
-from pokedex import *
+from data import pokedex
 import discord
 
 class Raid:
