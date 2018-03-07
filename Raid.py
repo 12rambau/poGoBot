@@ -166,6 +166,21 @@ class Raid:
         else:
             return 0
 
+    def afficherList(self):
+        """renvoit une str qui correspond à la ligne du raid dans la liste de raid-list"""
+        if self.pokeId < 0:
+            message += str("OEUF-%i : " %(self.pokeId))
+        else:
+            message += str("%s : " %(pokedex[self.pokeId-1]["fr"].upper()))
+        message += str("%s " %(self.battlePlace))
+        if self.lancement == 0:
+            message += "? "
+        else:
+            message += str("%s " %(self.lancement.strftime("%H:%M")))
+        message += str("avec %i personnes \n" %(len(self.participants)))
+
+        return message
+
 if __name__=="__main__":
     #debut des test unitaires
     pass

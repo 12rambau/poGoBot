@@ -14,7 +14,8 @@ client = commands.Bot(command_prefix = "?")
 
 cookieCompteur = 0
 cRaids = {}
-activeChannels = client.get_all_channels()
+activeChannels = 0
+server = 0
 
 cAccueil = 0
 cRaidList = 0
@@ -22,10 +23,19 @@ cDiscussion = 0
 cPokemon = 0
 cRaidAdd = 0
 
+async def reecrireListe():
+
+    #variables externes
+    global cRaidList
+    global cRaids
+
+    await client.purge_from(cRaidList)
+
+    print('coucou')
+    print (cRaidList.name)
 
 @client.event
 async def on_ready():
-
     #variable externes
     global activesChannels
     global cAccueil
@@ -33,9 +43,14 @@ async def on_ready():
     global cDiscussion
     global cPokemon
     global cRaidAdd
+    global server
+
+    #recuperer le server
+    server = client.get_server(os.environ["DISCORD_SERVER_ID"])
+    activeChannels = client.get_all_channels()
+
 
     #on identifie tous les salon sur lesquel peut agir le bot
-    regex = re.compile(r"raid-[0-9]")
     for cCurrent in activeChannels:
         if cCurrent.name == "accueil":
             cAccueil = cCurrent
@@ -47,9 +62,6 @@ async def on_ready():
             cPokemon = cCurrent
         elif cCurrent.name == "raid-add":
             cRaidAdd = cCurrent
-        elif regex.match(cCurrent.name):
-            num = int(cCurrent.name[5:])
-            cRaids[num]=ChannelRaid(num, cCurrent)
 
     print("Bot is ready and back online !")
 
@@ -100,6 +112,7 @@ async def on_message(message):
     global cookieCompteur
     global cRaidAdd
     global cRaids
+    global cRaidList
 
     args = message.content.split(" ")
     if message.content == "cookie":
@@ -112,25 +125,26 @@ async def on_message(message):
             battleTime = args[2]
             battlePlace = ' '.join(args[3:])
 
-            #on cherche une conversation de libre
-            libre = ChannelRaid.channelLibre(cRaids)
-            if not libre:
-                await client.send_message(message.channel, "tout est pris mon pote va jouer avec les autres")
-                return
-            await client.send_message(message.channel, "j'ai trouvé une channel de libre")
+            cRaid = await client.create_channel(server, str("%i_%s-0" %(ChannelRaid.nb_channel+1,pokeName)))
+            cRaids[ChannelRaid.nb_channel] = ChannelRaid(ChannelRaid.nb_channel, cRaid)
+
             raid = Raid(1,pokeName,message.author.nick, battleTime, battlePlace)
-            libre.ajouterRaid(raid)
-            await client.send_message(libre.com, embed=raid.embed())
+            cRaids[ChannelRaid.nb_channel].ajouterRaid(raid)
+
+            #reecrireListe()
+            await client.send_message(cRaid, embed=raid.embed())
 
     #écoute des channels de raid
-    regex = re.compile(r"raid-[0-9]")
+    regex = re.compile(r"[0-9]*_[a-z]*-[0-9]*")
     if regex.match(message.channel.name):
-        numRaid = int(message.channel.name[5:])
+        numRaid = int(message.channel.name[0])
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
             if message.content.lower() == "in":
                     if cCurrent.raid.ajouterParticipant(message.author.nick):
                         await client.send_message(cCurrent.com, embed=cCurrent.raid.embed())
+                        await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
+
             elif message.content.lower() == "out":
                 if cCurrent.raid.retirerParticipant(message.author.nick):
                      await client.send_message(cCurrent.com, embed=cCurrent.raid.embed())

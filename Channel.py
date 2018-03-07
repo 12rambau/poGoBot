@@ -44,3 +44,14 @@ class ChannelRaid:
             return 0
         else:
             return 1
+
+    def updateChannelList(channels):
+        """retourne un message contenant les carracteristique des channels"""
+        message = 0
+        for channel in channels.values():
+            if channel.raid == 0:
+                message += str("Pas de raid en cours sur #raid-%i \n" %(channel.id))
+            else:
+                message += channel.raid.afficherList()
+
+        return message
