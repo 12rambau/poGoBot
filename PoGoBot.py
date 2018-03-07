@@ -43,7 +43,6 @@ async def editListe(cRaid):
     msg = str("raid en cour sur #%i_%s-%i" %(cRaid.id, pokedex[cRaid.raid.pokeId-1]["fr"], len(cRaid.raid.participants)))
     await client.edit_message(cRaid.listMsg, new_content=msg, embed=cRaid.raid.embed())
 
-
 async def removeFromListe(cRaid):
     """retirer un raid périmé ou abandonné"""
 
@@ -99,41 +98,6 @@ async def on_ready():
 
     print("Bot is ready and back online !")
 
-    #lancement des tests unitaires
-    #activeChannels = client.get_all_channels()
-    #for channel in activeChannels:
-    #    if channel.name == "raid-add":
-    #        channelCom = channel
-    #        break
-    #await client.send_message(channelCom, "add T5 14:30 la chatte à la voisine" )
-
-    #for channel in activeChannels:
-    #    if channel.name == "raid-1": #normalement le raid est dans raid-1
-    #        channelCom = channel
-    #        break
-
-    #await client.send_message(channelCom, "bip bip")
-    #await client.send_message(channelCom, "in")
-    #await client.send_message(channelCom, "in")
-    #await client.send_message(channelCom, "out")
-    #await client.send_message(channelCom, "out")
-    #await client.send_message(channelCom, "launch 15:00")
-    #await client.send_message(channelCom, "edit tortank")
-    #await client.send_message(channelCom, "launch 15:10")
-    #await client.send_message(channelCom, "abort")
-
-
-
-# écoute les évènements de GymHuntrBot pour réactualiser en permanence la liste
-# des pokémons disponibles pour les raid
-
-    # creer/réécrire le message épingler avec :
-    # le pokémon/oeuf
-    # les cp, moves
-    # le moment de l'éclosion
-    # l'heure du Raid
-    # l'heure de fin
-    # liste des participants
 
 # timer toutes les minutes parcourir les raids
     # si heure de fin dépassée alors on libere le salon
@@ -183,7 +147,6 @@ async def on_message(message):
                         await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
                         await editListe(cCurrent)
                         await client.delete_message(message)
-
             elif message.content.lower() == "out":
                 if cCurrent.raid.retirerParticipant(message.author.nick):
                      await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
@@ -197,14 +160,12 @@ async def on_message(message):
                         await removeFromListe(cCurrent)
                         await client.delete_channel(client.get_channel(cId))
                         cCurrent = 0
-
             elif args[0] == "launch" and len(args) == 2:
                 battleTime = args[1]
                 if cCurrent.raid.choisirLaunch(battleTime):
                     await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
                     await editListe(cCurrent)
                     await client.delete_message(message)
-
             elif args[0].lower() == "edit" and len(args) == 2:
                 print (args[1])
                 pokeName = args[1]
