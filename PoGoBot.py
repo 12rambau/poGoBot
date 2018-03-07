@@ -148,6 +148,7 @@ async def on_message(message):
             elif message.content.lower() == "out":
                 if cCurrent.raid.retirerParticipant(message.author.nick):
                      await client.send_message(cCurrent.com, embed=cCurrent.raid.embed())
+                     await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
             elif message.content.lower() == 'abort':
                 if message.author.nick == cCurrent.raid.capitaine:
                     if cCurrent.retirerRaid():
