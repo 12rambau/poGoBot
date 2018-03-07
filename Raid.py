@@ -112,11 +112,8 @@ class Raid:
         """ajoute des participants au raid
         renvoit 0 si la personne est déjà inscrite
         1 si l'inscripsion est un succès"""
-        if self.isParticipant(newParticipant):
-            return 0
-        else:
-            self.participants.append(newParticipant)
-            return 1
+        self.participants.append(newParticipant)
+        return 1
 
     def retirerParticipant(self, oldParticipant):
         """retire un participant de la liste
