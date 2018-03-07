@@ -30,7 +30,6 @@ def is_bot(m):
 
 async def addToListe(cRaid):
     """ajoute un raid à la liste des raids"""
-
     #variables externes
     global cRaidAdd
 
@@ -46,7 +45,6 @@ async def editListe(cRaid):
 
 async def removeFromListe(cRaid):
     """retirer un raid périmé ou abandonné"""
-
     #variable globales
     global cRaidAdd
 
@@ -56,6 +54,9 @@ async def removeFromListe(cRaid):
 
 
     return 0
+
+# timer toutes les minutes parcourir les raids
+    # si heure de fin dépassée alors on libere le salon
 
 @client.event
 async def on_ready():
@@ -98,9 +99,6 @@ async def on_ready():
     msgRaid = await client.send_message(cRaidAdd, "liste des raides en cours")
 
     print("Bot is ready and back online !")
-
-# timer toutes les minutes parcourir les raids
-    # si heure de fin dépassée alors on libere le salon
 
 #ajout manuel d'evenement
 @client.event
@@ -180,5 +178,31 @@ async def on_message(message):
                     await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
                     await editListe(cCurrent)
 
+@client.event
+async def on_reaction_add(reaction, user):
 
+    regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
+    if regex.match(reaction.message.channel.name):
+        numRaid = int(reaction.message.channel.name[0])
+        cCurrent = cRaids[numRaid]
+        if cCurrent.isRaid():
+            if reaction.emoji == '👌':
+                if cCurrent.raid.ajouterParticipant(user):
+                    await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
+                    await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
+                    await editListe(cCurrent)
+
+@client.event
+async def on_reaction_remove(reaction, user):
+    regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
+    if regex.match(reaction.message.channel.name):
+        numRaid = int(reaction.message.channel.name[0])
+        cCurrent = cRaids[numRaid]
+        if cCurrent.isRaid():
+            if reaction.emoji == '👌':
+                if cCurrent.raid.retirerParticipant(user):
+                    await client.edit_message(cCurrent.pinMsg, embed=cCurrent.raid.embed())
+                    await client.edit_channel(cCurrent.com, name=re.sub(r"-[0-9]*", str("-%i" %(len(cCurrent.raid.participants))), cCurrent.com.name))
+                    await editListe(cCurrent)
+                    
 client.run(os.environ['DISCORD_TOKEN'])
