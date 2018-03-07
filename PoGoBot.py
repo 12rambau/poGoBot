@@ -110,7 +110,7 @@ async def on_message(message):
     global cRaids
     global cRaidList
     global cAccueil
-
+    global server
     args = message.content.split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
     if message.content == "cookie":
@@ -148,6 +148,12 @@ async def on_message(message):
                 newNick += str(" (%s)" %(lvl))
             print(newNick)
             await client.change_nickname(message.author, newNick)
+
+        if message.content.startswith("team") and len(args) == 2:
+            team = args[1]
+            for role in message.author.roles:
+                if not role.name == "@everyone" : await client.delete_role(message.author, role)
+            await client.add_roles(message.author, next(r for r in server.roles if r.name == team))
 
 
     #écoute des channels de raid
