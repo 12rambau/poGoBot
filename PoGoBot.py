@@ -115,11 +115,12 @@ async def on_message(message):
     global cRaidList
 
     args = message.content.split(" ")
+    regex = re.compile(r"[0-9]*_[a-z]*-[0-9]*") #nom des channels de raid
     if message.content == "cookie":
         cookieCompteur +=  1
         await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
 
-    if (message.channel == cRaidAdd):
+    elif (message.channel == cRaidAdd):
         if message.content.lower().startswith("add") and not len(args) < 4:
             pokeName = args[1]
             battleTime = args[2]
@@ -135,8 +136,7 @@ async def on_message(message):
             await client.send_message(cRaid, embed=raid.embed())
 
     #écoute des channels de raid
-    regex = re.compile(r"[0-9]*_[a-z]*-[0-9]*")
-    if regex.match(message.channel.name):
+    elif regex.match(message.channel.name):
         numRaid = int(message.channel.name[0])
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
@@ -164,5 +164,8 @@ async def on_message(message):
                 pokeName = args[1]
                 if cCurrent.raid.faireEclore(pokeName):
                     await client.send_message(cCurrent.com, embed=cCurrent.raid.embed())
+            else:
+                return
+            await client.delete_message(message)
 
 client.run(os.environ['DISCORD_TOKEN'])
