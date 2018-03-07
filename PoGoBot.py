@@ -51,11 +51,10 @@ async def on_ready():
 
     #recuperer le server
     server = client.get_server(os.environ["DISCORD_SERVER_ID"])
-    activeChannels = client.get_all_channels()
-
 
     #on identifie tous les salon sur lesquel peut agir le bot
-    for cCurrent in activeChannels:
+    regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
+    for cCurrent in client.get_all_channels():
         if cCurrent.name == "accueil":
             cAccueil = cCurrent
         elif cCurrent.name == "raid-list":
@@ -67,7 +66,11 @@ async def on_ready():
         elif cCurrent.name == "raid-add":
             cRaidAdd = cCurrent
             await client.purge_from(cRaidAdd)
-
+        elif regex.match(cCurrent.name):
+            cId = cCurrent.id
+            await client.delete_channel(client.get_channel(cId))
+    activeChannels = client.get_all_channels()
+    
     #ecrire le message initiale des raid
     msgRaid = await client.send_message(cRaidAdd, "liste des raides en cours")
 
