@@ -134,6 +134,7 @@ async def on_message(message):
 
             #reecrireListe()
             await client.send_message(cRaid, embed=raid.embed())
+            await client.delete_message(message)
 
     #écoute des channels de raid
     elif regex.match(message.channel.name):
