@@ -1,1 +1,1 @@
-worker: python PoGoBot.py
+bot: python PoGoBot.py
