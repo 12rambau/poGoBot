@@ -233,6 +233,10 @@ async def on_message(message):
                 userId = args[1].replace('<@', '').replace('>', '').replace('!','')
                 if not cCurrent.raid.ajouterParticipant(next( m for m in client.get_all_members() if m.id == userId)): return
                 if not await editCRaid(cCurrent): return
+            elif args[0].lower() == "plus" and args[1].lower() == "dispo" and len(args) == 3:
+                userId = args[2].replace('<@', '').replace('>', '').replace('!','')
+                if not cCurrent.raid.retirerParticipant(next( m for m in client.get_all_members() if m.id == userId)): return
+                if not await editCRaid(cCurrent): return
 
 #ajout d'emoji
 @client.event
