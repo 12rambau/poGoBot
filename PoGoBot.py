@@ -229,7 +229,7 @@ async def on_message(message):
                 if not await editCRaid(cCurrent): return
                 await client.delete_message(message)
             elif args[0].lower() == "dispo" and len(args) == 2:
-                userId = args[1].replace('<@', '').replace('>', '')
+                userId = args[1].replace('<@', '').replace('>', '').replace('!','')
                 if not cCurrent.raid.ajouterParticipant(next( m for m in client.get_all_members() if m.id == userId)): return
                 if not await editCRaid(cCurrent): return
 
