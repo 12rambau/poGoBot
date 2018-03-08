@@ -28,9 +28,7 @@ async def addToListe(cRaid):
     #variables externes
     global cRaidAdd
 
-    if not isinstance(cRaid, ChannelRaid):
-        print ('bite')
-        return 0
+    if not isinstance(cRaid, ChannelRaid): return 0
 
     await client.purge_from(cRaidAdd, check=is_bot)
     content = str("raid en cour sur <#%s>" %(cRaid.com.id))
@@ -92,7 +90,6 @@ async def changeTeam(team, user):
     for role in member.roles:
         if not (role.name == "@everyone" or role.name == "@modo"): await client.delete_role(member, role)
     await client.add_roles(member, next(r for r in server.roles if r.name == team))
-
 
 # timer toutes les 10s
 async def waitTimer():
@@ -179,6 +176,10 @@ async def on_message(message):
             pokeName = args[1]
             battleTime = args[2]
             battlePlace = ' '.join(args[3:])
+
+            #variable check
+            if not isFuture(battleTime): return
+            if not isPokemon(pokeName): return
 
             cCom = await client.create_channel(server, str("%i_%s-0" %(ChannelRaid.nb_channel+1,pokeName)))
             cRaids[ChannelRaid.nb_channel] = ChannelRaid(cCom)
