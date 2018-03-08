@@ -72,7 +72,7 @@ async def editCRaid(cRaid):
 async def addLevel(lvl, member):
     """retourn 1 si l'ajout nu niveau a fonctionné
     0 sinon"""
-    if not isinstance(lvl, int): return 0
+    if not (isinstance(lvl, int) and lvl > 0 and lvl < 41): return 0
     if not isinstance(member, discord.Member): return 0
 
     regex = re.compile(r"^.* \([0-9]*\)$") #un nick avec un niveau
