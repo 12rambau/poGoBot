@@ -68,8 +68,9 @@ async def waitTimer():
                 numRaid = int(cCurrent.name[0])
                 cRaidCurrent = cRaids[numRaid]
                 date = datetime.datetime.now()
-                print (cRaidCurrent.raid.fin.timestamp())
-                print (date.timestamp())
+                print ("raid: %s" %(cRaidCurrent.raid.fin.timestamp()))
+                print ("date: %s" %(date.timestamp()))
+                await asyncio.sleep(30)
                 if cRaidCurrent.raid.fin < date:
                     if cRaidCurrent.retirerRaid():
                         cId = cRaidCurrent.com.id
