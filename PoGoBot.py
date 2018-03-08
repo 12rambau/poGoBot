@@ -87,8 +87,11 @@ async def changeTeam(team, user):
     return 1 si le changement est effectif 0 sinon"""
     if not isinstance(member, discord.Member): return 0
 
+    loop = 0
     for role in member.roles:
+        loop += 1
         if not (role.name == "@everyone" or role.name == "@modo"): await client.delete_role(member, role)
+    if not loop == 1: await asyncio.sleep(86400) #1 journée entière sans rôle
     await client.add_roles(member, next(r for r in server.roles if r.name == team))
 
 # timer toutes les 10s
