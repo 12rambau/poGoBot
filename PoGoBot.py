@@ -26,8 +26,9 @@ cRaidAdd = 0
 
 def is_bot(m):
     global msgRaid
-    return m.author.name != "PoGoBot"
+    return m.author.bot != True
 
+#gesionnaire des listes de RAid
 async def addToListe(cRaid):
     """ajoute un raid à la liste des raids"""
     #variables externes
@@ -37,12 +38,10 @@ async def addToListe(cRaid):
     content = str("raid en cour sur <#%s>" %(cRaid.com.id))
     msg = await client.send_message(cRaidAdd, content=content, embed=cRaid.raid.embed())
     cRaid.listMsg = msg
-
 async def editListe(cRaid):
     """editer le message corresponant au raid selectionné"""
     msg = str("raid en cour sur <#%s>" %(cRaid.com.id))
     await client.edit_message(cRaid.listMsg, new_content=msg, embed=cRaid.raid.embed())
-
 async def removeFromListe(cRaid):
     """retirer un raid périmé ou abandonné"""
     #variable globales
@@ -55,11 +54,26 @@ async def removeFromListe(cRaid):
 
     return 0
 
+#gestionnaire des Raid channels du forum
+async def removeCRaid(cRaid):
+    """retire la channel de la liste des raid
+    renvoit 1 si reussi
+    0 sinon"""
+    if not isinstance(cRaid, ChannelRaid): return 0
+    await client.send_message(cRaid.com, "Attention dans 1 min je vais détruire ce salon, n'oubliez pas de vous dire au revoir !")
+    await asyncio.sleep(60)
+    cId = cRaid.com.id
+    await removeFromListe(cRaid)
+    await client.delete_channel(client.get_channel(cId))
+    return 1
+
+
 # timer toutes les minutes parcourir les raids
     # si heure de fin dépassée alors on libere le salon
 async def waitTimer():
     while True:
         await asyncio.sleep(10)
+        print ("test")
 
         regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
@@ -68,15 +82,13 @@ async def waitTimer():
                 numRaid = int(cCurrent.name[0])
                 cRaidCurrent = cRaids[numRaid]
                 date = datetime.datetime.now()
-                print ("raid: %s" %(cRaidCurrent.raid.fin.timestamp()))
-                print ("date: %s" %(date.timestamp()))
-                await asyncio.sleep(30)
                 if cRaidCurrent.raid.fin < date:
-                    if cRaidCurrent.retirerRaid():
-                        cId = cRaidCurrent.com.id
-                        await removeFromListe(cRaidCurrent)
-                        await client.delete_channel(client.get_channel(cId))
-                        cCurrent = 0
+                    if not cRaidCurrent.retirerRaid():
+                        print("error retirer")
+                        continue
+                    if not await removeCRaid(cRaidCurrent):
+                        print("error remove ")
+                        continue
 
 
 @client.event
@@ -119,11 +131,12 @@ async def on_ready():
     #ecrire le message initiale des raid
     msgRaid = await client.send_message(cRaidAdd, "liste des raides en cours")
 
+    print("Bot is ready and back online !")
+
     #on lance le garbage collector
     await waitTimer()
 
-    print("Bot is ready and back online !")
-
+    print ('bug')
 #ajout manuel d'evenement
 @client.event
 async def on_message(message):

@@ -27,7 +27,7 @@ class Raid:
         self.capitaine = capitaine
         args = temps.split(":")
         temps = datetime.datetime.now()
-        temps.replace(hour=int(args[0]), minute=int(args[1]), second=0)
+        temps = temps.replace(hour=int(args[0]), minute=int(args[1]), second=0)
         if self.pokeId < 0:
             self.eclosion = temps
             self.fin = self.eclosion + Raid.TEMPS_PRESENCE
