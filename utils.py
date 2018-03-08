@@ -9,16 +9,26 @@ def is_bot(m):
     renvoit 1 si l'auteur n'est pas un bot 0 sinon"""
     global msgRaid
     return m.author.bot != True
-def isFuture(temps):
-    """ prend en entree un heure au format %H:%M et test si elle appartien au future
+def isFuture(temps, now=datetime.datetime.now()):
+    """ prend en entree un heure au format %H:%M et test si elle appartien au future du now en entrée
     renvoit 1 si oui
     renvoit 0 si la date n'est pas au bon format ou si l'heure est dans le passée"""
+    if not isinstance(now, datetime.datetime): return 0
     args = temps.split(":")
     if not (len(args) == 2 and isinstance(int(args[0]), int) and isinstance(int(args[1]), int)): return 0
-    now = datetime.datetime.now()
     temps = now.replace(hour=int(args[0]), minute=int(args[1]), second=0)
 
     return temps > now
+def isPast(temps, now=datetime.datetime.now()):
+    """ prend en entree un heure au format %H:%M et test si elle appartien au passé du now en entrée
+    renvoit 1 si oui
+    renvoit 0 si la date n'est pas au bon format ou si l'heure est dans le passée"""
+    if not isinstance(now, datetime.datetime): return 0
+    args = temps.split(":")
+    if not (len(args) == 2 and isinstance(int(args[0]), int) and isinstance(int(args[1]), int)): return 0
+    temps = now.replace(hour=int(args[0]), minute=int(args[1]), second=0)
+
+    return temps < now
 def isPokemon(pokeName):
     """prend en entré un nom de pokemon ou un oeuf
     renvoit 1 si'il existe dans le pokedex
@@ -58,5 +68,9 @@ def lirePokeId(pokeId):
 
 if __name__=="__main__":
     #debut des test unitaires
-    temps = "23:00"
+    temps = "00:10"
+    now = datetime.datetime.now()
     if isFuture(temps): print("%s c'est dans le future" %temps)
+    if isFuture(temps, now): print("%s c'est dans le future" %temps)
+    if isPast(temps): print("%s c'est dans le passé" %temps)
+    if isPast(temps, now): print("%s c'est dans le passé" %temps)

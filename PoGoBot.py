@@ -221,6 +221,8 @@ async def on_message(message):
                 if not await removeCRaid(cCurrent): return
             elif args[0] == "launch" and len(args) == 2:
                 battleTime = args[1]
+                if not isFuture(battleTime) : return
+                if not isPast(battleTime, cCurrent.raid.fin): return
                 if not cCurrent.raid.choisirLaunch(battleTime): return
                 if not await editCRaid(cCurrent): return
                 await client.delete_message(message)
