@@ -14,7 +14,7 @@ class Raid:
     - eclosion: si c'est un oeuf on met l'heure d'éclosion
     - battlePlace: le lieu du raid"""
 
-    temps_presence = datetime.timedelta(minutes=45)
+    TEMPS_PRESENCE = datetime.timedelta(minutes=45)
 
     def __init__(self, id, pokeId, capitaine, temps, battlePlace):
         """constructeur parametré permettant de creer un Raid avec tous les paramettres"""
@@ -25,11 +25,14 @@ class Raid:
         self.participants = []
         self.lancement = 0
         self.capitaine = capitaine
+        args = temps.split(":")
+        temps = datetime.datetime.now()
+        temps.replace(hour=int(args[0]), minute=int(args[1]), second=0)
         if self.pokeId < 0:
-            self.eclosion = datetime.datetime.strptime(temps, "%H:%M")
-            self.fin = 0
+            self.eclosion = temps
+            self.fin = self.eclosion + Raid.TEMPS_PRESENCE
         elif self.pokeId > 0:
-            self.fin = datetime.datetime.strptime(temps, "%H:%M")
+            self.fin = temps
             self.eclosion = 0
         self.battlePlace = battlePlace
 
@@ -151,7 +154,7 @@ class Raid:
             return 0
 
         self.pokeId = newPokeId
-        self.fin = self.eclosion + Raid.temps_presence
+        #self.fin = self.eclosion + Raid.TEMPS_PRESENCE
         self.eclosion = 0
 
         return 1
