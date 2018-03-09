@@ -10,7 +10,7 @@ Si vous êtes intéressé par l'installation du PoGoBot je vous invite à rejoin
 
 Nous ne bénéficions pour l'instant pas de colaborateur étrangés. Si un devellopeur se montre interessé, qu'il n'hesite pas me contacter via la section [issues](https://github.com/12rambau/poGoBot/issues)
 
-## TO DO
+## TO DO avant prochain release
 - [ ] gestionnaire de raid ex  
 - [x] verification de doublon de lieu  
 - [ ] explication des erreurs par le bot  
