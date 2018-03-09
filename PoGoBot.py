@@ -87,23 +87,24 @@ async def addLevel(lvl, member):
 async def changeTeam(team, member):
     """enleve tous les rôles d'un utilisateur sauf @everyone et @modo puis place le member dans la team appropriée
     return 1 si le changement est effectif 0 sinon"""
+    team = isTeam(team)
+    if not team: return 0
     if not isinstance(member, discord.Member): return 0
     for role in member.roles:
         if role.name == "@attente": return 0
 
     loop = 0
     for role in member.roles:
-        print(role.name)
         loop += 1
         if not (role.name == "@everyone" or role.name == "modo"):
             await client.remove_roles(member, role)
     if not loop == 1:
-        await client.send_message(member, str("tu va passer dans la team %s. Comme tu avais déjà un rôle tu va rester sans rôle pendant 1 journée" %team))
+        await client.send_message(member, str("tu va passer dans la team %s. Comme tu avais déjà un rôle tu va rester sans rôle pendant 1 heure" %str(team)))
         await client.add_roles(member, next(r for r in server.roles if r.name == "@attente"))
-        await asyncio.sleep(86400) #1 journée entière sans rôle
+        await asyncio.sleep(3600) #1 heure entière sans rôle
 
     await client.add_roles(member, next(r for r in server.roles if r.name == team))
-
+    return 1
 # timer toutes les 10s
 async def waitTimer():
     while True:

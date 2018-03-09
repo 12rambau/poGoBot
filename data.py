@@ -391,5 +391,10 @@ pokedex = [
     {"fr":  "bulbizarre",   "en":   "bulbazaur"},
     {"fr":  "bulbizarre",   "en":   "bulbazaur"},
     {"fr":  "bulbizarre",   "en":   "bulbazaur"},
-
 ]
+
+teamdex = {
+    "bravoure":     {"fr":  "rouge",    "en":  "red" },
+    "intuition":    {"fr":  "jaune",    "en":   "yellow"},
+    "sagesse":      {"fr":  "bleu",     "en":   "blue"}
+}

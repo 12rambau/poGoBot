@@ -65,6 +65,15 @@ def lirePokeId(pokeId):
     elif pokeId > 0 and pokeId < len(pokedex):
         return pokedex[pokeId-1]["fr"]
     else: return 0
+def isTeam(team):
+    """verifie si la team appartien au dictionnaire
+    renvoit le teamName si oui, 0 sinon"""
+    if not isinstance(team, str): return 0
+
+    for teamName, trad in teamdex.items():
+        if team == trad["fr"]: return teamName
+
+    return 0
 
 if __name__=="__main__":
     #debut des test unitaires
