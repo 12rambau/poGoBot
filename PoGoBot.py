@@ -76,22 +76,32 @@ async def addLevel(lvl, member):
     if not isinstance(member, discord.Member): return 0
 
     regex = re.compile(r"^.* \([0-9]*\)$") #un nick avec un niveau
+    if not member.nick: return 0
     if regex.match(member.nick):
         newNick = re.sub(r"\([0-9]*\)$", str("(%i)" %(lvl)), member.nick)
     else:
         newNick = member.nick + str(" (%i)" %(lvl))
 
     await client.change_nickname(member, newNick)
-async def changeTeam(team, user):
+    return 1
+async def changeTeam(team, member):
     """enleve tous les rôles d'un utilisateur sauf @everyone et @modo puis place le member dans la team appropriée
     return 1 si le changement est effectif 0 sinon"""
     if not isinstance(member, discord.Member): return 0
+    for role in member.roles:
+        if role.name == "@attente": return 0
 
     loop = 0
     for role in member.roles:
+        print(role.name)
         loop += 1
-        if not (role.name == "@everyone" or role.name == "@modo"): await client.delete_role(member, role)
-    if not loop == 1: await asyncio.sleep(86400) #1 journée entière sans rôle
+        if not (role.name == "@everyone" or role.name == "modo"):
+            await client.remove_roles(member, role)
+    if not loop == 1:
+        await client.send_message(member, str("tu va passer dans la team %s. Comme tu avais déjà un rôle tu va rester sans rôle pendant 1 journée" %team))
+        await client.add_roles(member, next(r for r in server.roles if r.name == "@attente"))
+        await asyncio.sleep(86400) #1 journée entière sans rôle
+
     await client.add_roles(member, next(r for r in server.roles if r.name == team))
 
 # timer toutes les 10s
@@ -201,7 +211,7 @@ async def on_message(message):
             await client.delete_message(message)
         if message.content.lower().startswith("team") and len(args) == 2:
             team = args[1]
-            if not await changeTeam(team, user): return
+            if not await changeTeam(team, message.author): return
             await client.delete_message(message)
 
 
