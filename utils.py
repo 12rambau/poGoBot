@@ -74,7 +74,14 @@ def isTeam(team):
         if team == trad["fr"]: return teamName
 
     return 0
+def isUniquePlace(battlePlace, cRaids):
+    """retourne 1 si l'endroit n'a jamais été utilisé 0 sinon"""
+    if not isinstance(battlePlace, str): return 0
 
+    for cCurrent in cRaids.values():
+        if battlePlace == cCurrent.raid.battlePlace: return 0
+
+    return 1
 if __name__=="__main__":
     #debut des test unitaires
     temps = "00:10"

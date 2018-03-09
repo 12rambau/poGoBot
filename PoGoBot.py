@@ -194,6 +194,7 @@ async def on_message(message):
             #variable check
             if not isFuture(battleTime): return
             if not isPokemon(pokeName): return
+            if not isUniquePlace(battlePlace, cRaids): return 
 
             cCom = await client.create_channel(server, str("%i_%s-0" %(ChannelRaid.nb_channel+1,pokeName)))
             cRaids[ChannelRaid.nb_channel] = ChannelRaid(cCom)
