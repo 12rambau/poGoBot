@@ -9,3 +9,9 @@ Si vous êtes intéressé par l'utilisation du PoGoBot je vous invite à rejoind
 Si vous êtes intéressé par l'installation du PoGoBot je vous invite à rejoindre la page [wiki_admin](https://github.com/12rambau/poGoBot/wiki/wip)  
   
 Nous ne bénéficions pour l'instant pas de colaborateur étrangés. Si un devellopeur se montre interessé, qu'il n'hesite pas me contacter via la section [issues](https://github.com/12rambau/poGoBot/issues)
+
+## TO DO 
+- [ ] gestionnaire de raid ex  
+- [ ] verification de doublon de lieu  
+- [ ] explication des erreurs par le bot  
+- [ ] doc pour installation sur serveur  
