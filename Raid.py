@@ -3,6 +3,7 @@ import datetime
 import re
 from data import pokedex
 import discord
+from utils import *
 
 class Raid:
     """ classe permettant de décrire un raid instancié:
@@ -16,18 +17,18 @@ class Raid:
 
     TEMPS_PRESENCE = datetime.timedelta(minutes=45)
 
-    def __init__(self, id, pokeId, capitaine, temps, battlePlace):
+    def __init__(self, id, pokeName, capitaine, temps, battlePlace):
         """constructeur parametré permettant de creer un Raid avec tous les paramettres"""
 
         #pour l'instant je fais confiance à mes utilisateurs
         self.id = id
-        self.pokeId = Raid.lirePokeId(pokeId)
+        self.pokeId = lirePokeName(pokeName)
         self.participants = []
         self.lancement = 0
         self.capitaine = capitaine
         args = temps.split(":")
         temps = datetime.datetime.now()
-        temps.replace(hour=int(args[0]), minute=int(args[1]), second=0)
+        temps = temps.replace(hour=int(args[0]), minute=int(args[1]), second=0)
         if self.pokeId < 0:
             self.eclosion = temps
             self.fin = self.eclosion + Raid.TEMPS_PRESENCE
@@ -54,32 +55,10 @@ class Raid:
         else:
             print("eclosion: ?")
 
-    def lirePokeId(pokeId):
-        """ Permet de lire le pokéId donné en entré grace au dictionnaire de poketrad
-        Il pourra chercher en français et en anglais
-        retourne le numero du pokemon ou le niveau de l'oeuf (negatif)
-        retourne 0 si il n'existe pas"""
-        RegexOeuf = re.compile(r"T[0-9]")
-        if RegexOeuf.match(str(pokeId)):
-            num = pokeId[1:]
-            try:
-                if isinstance(int(num), int):
-                    num = int(num)
-                    if num < 6 and num > 0:
-                        return -num
-            except:
-                pass
-
-        for ip, pokemon in enumerate(pokedex):
-            for nom in pokemon.values():
-                if nom == str(pokeId).lower():
-                    return ip+1
-        return 0
-
     def embed(self):
         """ Retourne un embed formaté pour être lu par discord"""
         if self.pokeId > 0:
-            embed = discord.Embed(title = pokedex[self.pokeId-1]["fr"].upper())
+            embed = discord.Embed(title = lirePokeId(self.pokeId).upper())
         else:
             embed = discord.Embed(title=str("Raid LvL%i" %(-self.pokeId)))
 
@@ -146,27 +125,18 @@ class Raid:
         """eclosion d'un oeuf
         l'utilisateur rensigne le nom du pokémon apparut à l'interieur de l'oeuf. le bot remplace le time de fin par éclosion + temps d'incubation et change le numero du pokemon (return 1)
         il ne fait rien si ce n'est pas un oeuf (return 0)"""
-        if not self.isOeuf():
-            return 0
+        if not self.isOeuf(): return 0
+        if not isPokemon(pokeName) : return 0
 
-        newPokeId = Raid.lirePokeId(pokeName)
-        if newPokeId == 0:
-            return 0
-
-        self.pokeId = newPokeId
-        #self.fin = self.eclosion + Raid.TEMPS_PRESENCE
+        self.pokeId = lirePokeName(pokeName)
         self.eclosion = 0
-
         return 1
 
     def isOeuf (self):
         """test si le raid selectionné était un oeuf
         retour 1 si oui
         0 sinon"""
-        if self.pokeId < 0:
-            return 1
-        else:
-            return 0
+        return self.pokeId < 0
 
     def afficherList(self):
         """renvoit une str qui correspond à la ligne du raid dans la liste de raid-list"""
