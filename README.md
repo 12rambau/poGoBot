@@ -1,3 +1,5 @@
+[![POGODEV](https://github.com/pogodevorg/assets/blob/master/public/img/logo-github.png?raw=true)](https://pogodev.org)
+
 # Welcome to the poGoBot discord Bot !
 
 le PoGoBot est un bot python à destination d'une communauté pokémon qui envisage de s'organiser à travers un server discord. ce dernier permet de gérer les raid de leur création à leur destruction et les membres lors de leur arrivé sur le serveur. Le pilotage du PoGoBot se fait par le bia de commande à taper directement dans les salons discord.  
