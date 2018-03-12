@@ -16,3 +16,4 @@ Nous ne bénéficions pour l'instant pas de colaborateur étrangés. Si un devel
 - [x] explication des erreurs par le bot  
 - [ ] doc pour installation sur serveur
 - [ ] ajouter les images dans la doc utilisateur
+- [x] ajouter la gen 3
