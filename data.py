@@ -400,14 +400,14 @@ teamdex = {
 }
 
 commandex = {
-    "cookie":   "cookie",
-    "add":  "add [pokeName]/T[RaidLvl] [heure_de_fin]/[heure eclosion] [lieu]",
-    "lvl":  "lvl [mon_lvl]",
-    "team": "team [couleur]",
-    "edit": "edit [pokeName]",
-    "dispo": "dispo @[nom]",
-    "plus dispo": "plus dispo @[nom]",
-    "launch": "launch [heure de lancement]"
+    "cookie":   "!cookie",
+    "add":  "!add [pokeName]/T[RaidLvl] [heure_de_fin]/[heure eclosion] [lieu]",
+    "lvl":  "!lvl [mon_lvl]",
+    "team": "!team [couleur]",
+    "edit": "!edit [pokeName]",
+    "dispo": "!dispo @[nom]",
+    "plus dispo": "!plus dispo @[nom]",
+    "launch": "!launch [heure de lancement]"
 
 
 

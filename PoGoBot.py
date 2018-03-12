@@ -183,14 +183,14 @@ async def on_message(message):
     #variables internes
     args = message.content.split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
-    if message.content.lower() == "cookie":
+    if message.content.lower() == "!cookie":
         cookieCompteur +=  1
         await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
         await client.delete_message(message)
 
     #on écoute la channel d'add
     elif message.channel == cRaidAdd:
-        if message.content.lower().startswith("add") and not len(args) < 4:
+        if message.content.lower().startswith("!add") and not len(args) < 4:
             pokeName = args[1]
             battleTime = args[2]
             battlePlace = ' '.join(args[3:])
@@ -215,7 +215,7 @@ async def on_message(message):
 
     #on écoute la channel d'accueil
     elif message.channel == cAccueil:
-        if message.content.lower().startswith("lvl") and len(args) == 2:
+        if message.content.lower().startswith("!lvl") and len(args) == 2:
             #variable check
             try:
                 lvl = int(args[1])
@@ -225,7 +225,7 @@ async def on_message(message):
 
             addLevel(lvl, message.author)
             await client.delete_message(message.channel)
-        if message.content.lower().startswith("team") and len(args) == 2:
+        if message.content.lower().startswith("!team") and len(args) == 2:
             #variable check
             team = args[1]
             try:
@@ -242,20 +242,20 @@ async def on_message(message):
         numRaid = int(message.channel.name[0])
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
-            if message.content.lower() == "in":
+            if message.content.lower() == "!in":
                 cCurrent.raid.ajouterParticipant(message.author)
                 await editCRaid(cCurrent)
                 await client.delete_message(message)
-            elif message.content.lower() == "out":
+            elif message.content.lower() == "!out":
                 cCurrent.raid.retirerParticipant(message.author)
                 await editCRaid(cCurrent)
                 await client.delete_message(message)
-            elif message.content.lower() == 'abort':
+            elif message.content.lower() == '!abort':
                 if message.author == cCurrent.raid.capitaine:
                     cCurrent.retirerRaid()
                     await removeCRaid(cCurrent)
                     del cRaids[cCurrent.id]
-            elif args[0] == "launch" and len(args) == 2:
+            elif args[0] == "!launch" and len(args) == 2:
                 battleTime = args[1]
                 try:
                     assert isFuture(battleTime)
@@ -267,7 +267,7 @@ async def on_message(message):
                 cCurrent.raid.choisirLaunch(battleTime)
                 await editCRaid(cCurrent)
                 await client.delete_message(message)
-            elif args[0].lower() == "edit" and len(args) == 2:
+            elif args[0].lower() == "!edit" and len(args) == 2:
                 pokeName = args[1]
                 try:
                     assert isPokemon(pokeName)
@@ -278,7 +278,7 @@ async def on_message(message):
                 cCurrent.raid.faireEclore(pokeName)
                 await editCRaid(cCurrent)
                 await client.delete_message(message)
-            elif args[0].lower() == "dispo" and len(args) == 2:
+            elif args[0].lower() == "!dispo" and len(args) == 2:
                 userId = args[1].replace('<@', '').replace('>', '').replace('!','')
                 try:
                     user = next( m for m in client.get_all_members() if m.id == userId)
@@ -288,7 +288,7 @@ async def on_message(message):
 
                 cCurrent.raid.ajouterParticipant(user)
                 await editCRaid(cCurrent)
-            elif args[0].lower() == "plus" and args[1].lower() == "dispo" and len(args) == 3:
+            elif args[0].lower() == "!plus" and args[1].lower() == "dispo" and len(args) == 3:
                 userId = args[2].replace('<@', '').replace('>', '').replace('!','')
                 try:
                     user = next( m for m in client.get_all_members() if m.id == userId)
