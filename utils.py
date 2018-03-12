@@ -45,7 +45,7 @@ def lirePokeName(pokeName):
     retourne 0 si il n'existe pas"""
     RegexOeuf = re.compile(r"T[0-9]")
     if RegexOeuf.match(str(pokeName)):
-        num = pokeId[1:]
+        num = pokeName[1:]
         if not int(num): return 0
         num = int(num)
         if not (num < 6 and num > 0): return 0
@@ -77,16 +77,26 @@ def isTeam(team):
 def isUniquePlace(battlePlace, cRaids):
     """retourne 1 si l'endroit n'a jamais été utilisé 0 sinon"""
     if not isinstance(battlePlace, str): return 0
-
-    for cCurrent in cRaids.values():
-        if battlePlace == cCurrent.raid.battlePlace: return 0
+    if cRaids.values():
+        for cCurrent in cRaids.values():
+            if battlePlace == cCurrent.raid.battlePlace: return 0
 
     return 1
+def isOeufName(pokeName):
+    """retourne 1 si c'est un nom d'oeuf, O sinon"""
+    if isinstance(pokename, str):
+        regexOeuf = re.compile(r"T[0-9]")
+        regexEx = re.compile(r"Tex")
+        if regexOeuf.match(pokename) or regexEx.match(pokename): return 1
+    return 0
+def rappelCommand(commandName):
+    """envoi à l'utilisateur un message permettant de reexpliquer la commande"""
+    return str("comme je suis sympa je te redonne la commande que tu as essayé de taper :\n %s" %commandex[commandName])
+
 if __name__=="__main__":
     #debut des test unitaires
     temps = "00:10"
     now = datetime.datetime.now()
-    if isFuture(temps): print("%s c'est dans le future" %temps)
-    if isFuture(temps, now): print("%s c'est dans le future" %temps)
-    if isPast(temps): print("%s c'est dans le passé" %temps)
-    if isPast(temps, now): print("%s c'est dans le passé" %temps)
+    if isFuture(temps): print(str("%s c'est dans le future" %temps))
+    if isFuture(temps, now): print(str("%s c'est dans le future" %temps))
+    if isPast(temps, now): print(str("%s c'est dans le passé" %temps))

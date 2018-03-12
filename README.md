@@ -13,6 +13,6 @@ Nous ne bénéficions pour l'instant pas de colaborateur étrangés. Si un devel
 ## TO DO avant prochain release
 - [ ] gestionnaire de raid ex  
 - [x] verification de doublon de lieu  
-- [ ] explication des erreurs par le bot  
+- [x] explication des erreurs par le bot  
 - [ ] doc pour installation sur serveur
 - [ ] ajouter les images dans la doc utilisateur

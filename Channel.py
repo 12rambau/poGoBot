@@ -11,12 +11,13 @@ class ChannelRaid:
 
     def __init__(self, com):
         """initialisation d'une channel avec pour seul information son ID, le raid est initialisé à 0"""
+        ChannelRaid.nb_channel += 1
         self.raid = 0
-        self.id = ChannelRaid.nb_channel + 1
+        self.id = ChannelRaid.nb_channel
         self.com = com
         self.pinMsg = 0
         self.listMsg = 0
-        ChannelRaid.nb_channel += 1
+
 
     def ajouterRaid(self, raid):
         """ajoute un raid dans une channel libre
