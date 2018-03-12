@@ -9,6 +9,7 @@ from Raid import *
 from Channel import *
 from data import *
 from utils import *
+import unidecode
 
 Client = discord.Client()
 client = commands.Bot(command_prefix = "?")
@@ -87,7 +88,7 @@ async def addLevel(lvl, member):
     await client.change_nickname(member, newNick)
     return 1
 async def changeTeam(team, member):
-    """enleve tous les rôles d'un utilisateur sauf @everyone et @modo puis place le member dans la team appropriée
+    """enleve tous les rôles d'un utilisateur sauf '@everyone' et '@modo' puis place le member dans la team appropriée
     return 1 si le changement est effectif 0 sinon"""
     team = isTeam(team)
     if not team: return 0
@@ -98,7 +99,7 @@ async def changeTeam(team, member):
     loop = 0
     for role in member.roles:
         loop += 1
-        if not (role.name == "@everyone" or role.name == "modo"):
+        if not (role.name == "@everyone" or role.name == "@modo"):
             await client.remove_roles(member, role)
     if not loop == 1:
         await client.send_message(member, str("tu va passer dans la team %s. Comme tu avais déjà un rôle tu va rester sans rôle pendant 1 heure" %str(team)))
@@ -191,9 +192,9 @@ async def on_message(message):
     #on écoute la channel d'add
     elif message.channel == cRaidAdd:
         if message.content.lower().startswith("!add") and not len(args) < 4:
-            pokeName = args[1]
+            pokeName = unidecode.unidecode(u"%s" %(args[1]))
             battleTime = args[2]
-            battlePlace = ' '.join(args[3:])
+            battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[3:])))
 
             #variable check
             try:
@@ -268,7 +269,7 @@ async def on_message(message):
                 await editCRaid(cCurrent)
                 await client.delete_message(message)
             elif args[0].lower() == "!edit" and len(args) == 2:
-                pokeName = args[1]
+                pokeName = unidecode.unidecode(u"%s" %(args[1]))
                 try:
                     assert isPokemon(pokeName)
                 except AssertionError:
