@@ -159,7 +159,7 @@ async def on_ready():
             await client.delete_channel(cCurrent)
 
     #ecrire le message initiale des raid
-    await client.send_message(cRaidAdd, "liste des raides en cours")
+    await client.send_message(cRaidAdd, "liste des raids en cours")
 
     print("Bot is ready and back online !")
 
