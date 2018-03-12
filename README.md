@@ -10,9 +10,9 @@ Si vous êtes intéressé par l'installation du PoGoBot je vous invite à rejoin
 
 Nous ne bénéficions pour l'instant pas de colaborateur étrangés. Si un devellopeur se montre interessé, qu'il n'hesite pas me contacter via la section [issues](https://github.com/12rambau/poGoBot/issues)
 
-## TO DO avant prochain release 
+## TO DO avant prochain release
 - [x] verification de doublon de lieu  
 - [x] explication des erreurs par le bot  
 - [x] doc pour installation sur serveur
-- [ ] ajouter les images dans la doc utilisateur
+- [x] ajouter les images dans la doc utilisateur
 - [x] ajouter la gen 3
