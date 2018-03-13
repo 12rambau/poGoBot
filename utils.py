@@ -46,13 +46,12 @@ def lirePokeName(pokeName):
     """ Permet de lire le pokéName donné en entrée grace au dictionnaire de poketrad. Il pourra chercher en français et en anglais
     retourne le numero du pokemon ou le niveau de l'oeuf (negatif)
     retourne 0 si il n'existe pas"""
-    RegexOeuf = re.compile(r"T[0-9]")
+    RegexOeuf = re.compile(r"t[0-9]")
     if RegexOeuf.match(str(pokeName)):
         num = pokeName[1:]
-        if not int(num): return 0
-        num = int(num)
-        if not (num < 6 and num > 0): return 0
-        return -num
+        if int(num):
+            num = int(num)
+            if num < 6 and num > 0: return -num
 
     for ip, pokemon in enumerate(pokedex):
         for nom in pokemon.values():
