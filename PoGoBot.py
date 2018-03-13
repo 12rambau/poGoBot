@@ -94,7 +94,8 @@ async def changeTeam(team, member):
     if not team: return 0
     if not isinstance(member, discord.Member): return 0
     for role in member.roles:
-        if role.name == "@attente": return 0
+        print (role.name)
+        if role.name.startswith("almost_"): return 0
 
     loop = 0
     for role in member.roles:
@@ -103,7 +104,7 @@ async def changeTeam(team, member):
             await client.remove_roles(member, role)
     if not loop == 1:
         await client.send_message(member, str("tu va passer dans la team %s. Comme tu avais déjà un rôle tu va rester sans rôle pendant 1 heure" %str(team)))
-        attente = next(r for r in server.roles if r.name == "@attente")
+        attente = next(r for r in server.roles if r.name == str("almost_%s" %(team)))
         await client.add_roles(member, attente)
         await asyncio.sleep(3600) #1 heure entière sans rôle
         await client.remove_roles(member, attente)
@@ -164,6 +165,15 @@ async def on_ready():
     await client.send_message(cRaidAdd, "liste des raids en cours")
 
     print("Bot is ready and back online !")
+
+    #changer les couleurs des utilisateurs en attente
+    for member in client.get_all_members():
+        for role in member.roles:
+            if role.name.startswith("almost_"):
+                team = role.name.replace ("almost_", "")
+                newRole = next(r for r in server.roles if r.name == team)
+                await client.remove_roles(member, role)
+                await client.add_roles(member, newRole)
 
     #on lance le garbage collector
     await waitTimer()
