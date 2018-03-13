@@ -84,10 +84,10 @@ def isUniquePlace(battlePlace, cRaids):
     return 1
 def isOeufName(pokeName):
     """retourne 1 si c'est un nom d'oeuf, O sinon"""
-    if isinstance(pokename, str):
+    if isinstance(pokeName, str):
         regexOeuf = re.compile(r"T[0-9]")
         regexEx = re.compile(r"Tex")
-        if regexOeuf.match(pokename) or regexEx.match(pokename): return 1
+        if regexOeuf.match(pokeName) or regexEx.match(pokeName): return 1
     return 0
 def rappelCommand(commandName):
     """envoi à l'utilisateur un message permettant de reexpliquer la commande"""
