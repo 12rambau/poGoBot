@@ -31,7 +31,8 @@ async def addToListe(cRaid):
 
     if not isinstance(cRaid, ChannelRaid): return 0
 
-    await client.purge_from(cRaidAdd, check=is_bot)
+    await client.purge_from(cRaidAdd, check=isRappelCommand)
+    await client.purge_from(cRaidAdd, check=isNotBot)
     content = str("raid en cour sur <#%s>" %(cRaid.com.id))
     msg = await client.send_message(cRaidAdd, content=content, embed=cRaid.raid.embed())
     cRaid.listMsg = msg
@@ -94,7 +95,6 @@ async def changeTeam(team, member):
     if not team: return 0
     if not isinstance(member, discord.Member): return 0
     for role in member.roles:
-        print (role.name)
         if role.name.startswith("almost_"): return 0
 
     loop = 0
@@ -196,7 +196,7 @@ async def on_message(message):
     #variables internes
     args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
-    if message.content.lower() == "!cookie":
+    if message.content.lower() == "!cookie" and message.channel != cRaidAdd:
         cookieCompteur +=  1
         await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
         await client.delete_message(message)
@@ -225,7 +225,7 @@ async def on_message(message):
             await addToListe(cRaid)
             cRaid.pinMsg = await client.send_message(cCom, embed=raid.embed())
             await client.pin_message(cRaid.pinMsg)
-
+        elif isNotBot(message) : await client.delete_message(message)
     #on écoute la channel d'accueil
     elif message.channel == cAccueil:
         if message.content.lower().startswith("!lvl") and len(args) == 2:

@@ -5,11 +5,13 @@ import re
 import unidecode
 
 #function hors loop
-def is_bot(m):
+def isNotBot(m):
     """prend en entree un discord.on_message
     renvoit 1 si l'auteur n'est pas un bot 0 sinon"""
-    global msgRaid
     return m.author.bot != True
+def isRappelCommand(m):
+    """ renvoit 1 si c'est un rappel de commande 0 sinon"""
+    return m.content.startswith("Comme je suis sympa je te redonne la commande que tu as essayé de taper :")
 def isFuture(temps, now=datetime.datetime.now()):
     """ prend en entree un heure au format %H:%M et test si elle appartien au future du now en entrée
     renvoit 1 si oui
@@ -91,7 +93,7 @@ def isOeufName(pokeName):
     return 0
 def rappelCommand(commandName):
     """envoi à l'utilisateur un message permettant de reexpliquer la commande"""
-    return str("comme je suis sympa je te redonne la commande que tu as essayé de taper :\n %s" %commandex[commandName])
+    return str("Comme je suis sympa je te redonne la commande que tu as essayé de taper :\n %s" %commandex[commandName])
 
 if __name__=="__main__":
     #debut des test unitaires
