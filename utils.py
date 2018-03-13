@@ -34,9 +34,11 @@ def isPokemon(pokeName):
     0 sinon"""
     RegexOeuf = re.compile(r"T[0-9]")
     if RegexOeuf.match(str(pokeName)): return 1
+
     for ip, pokemon in enumerate(pokedex):
         for nom in pokemon.values():
             if nom == str(pokeName).lower(): return 1
+            
     return 0
 def lirePokeName(pokeName):
     """ Permet de lire le pokéName donné en entrée grace au dictionnaire de poketrad. Il pourra chercher en français et en anglais
