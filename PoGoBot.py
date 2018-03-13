@@ -197,6 +197,9 @@ async def on_message(message):
     global cAccueil
     global server
 
+    #se debarasser des messages privés
+    if message.channel.is_private: return
+
     #variables internes
     args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
