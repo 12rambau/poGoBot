@@ -182,7 +182,7 @@ async def on_message(message):
     global server
 
     #variables internes
-    args = message.content.split(" ")
+    args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
     if message.content.lower() == "!cookie":
         cookieCompteur +=  1

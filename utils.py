@@ -2,6 +2,7 @@ import datetime
 from utils import *
 from data import *
 import re
+import unidecode
 
 #function hors loop
 def is_bot(m):
@@ -77,9 +78,8 @@ def isTeam(team):
 def isUniquePlace(battlePlace, cRaids):
     """retourne 1 si l'endroit n'a jamais été utilisé 0 sinon"""
     if not isinstance(battlePlace, str): return 0
-    if cRaids.values():
-        for cCurrent in cRaids.values():
-            if battlePlace == cCurrent.raid.battlePlace: return 0
+    for cCurrent in cRaids.values():
+        if battlePlace == cCurrent.raid.battlePlace: return 0
 
     return 1
 def isOeufName(pokeName):

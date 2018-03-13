@@ -16,3 +16,4 @@ Nous ne bénéficions pour l'instant pas de colaborateur étrangés. Si un devel
 - [x] doc pour installation sur serveur
 - [x] ajouter les images dans la doc utilisateur
 - [x] ajouter la gen 3
+- [ ] finaliser phase de test avec @Nanalith
