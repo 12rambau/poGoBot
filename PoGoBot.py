@@ -74,20 +74,20 @@ async def editCRaid(cRaid):
 
 #gestionnaires de la channel d'accueil
 async def addLevel(lvl, member):
-    """retourn 1 si l'ajout nu niveau a fonctionné
-    0 sinon"""
-    if not (isinstance(lvl, int) and lvl > 0 and lvl < 41): return 0
-    if not isinstance(member, discord.Member): return 0
+    """ajoute un nouveau nickname à l'utilisateur"""
+    assert isinstance(lvl, int) and lvl > 0 and lvl < 41
+    assert isinstance(member, discord.Member)
 
     regex = re.compile(r"^.* \([0-9]*\)$") #un nick avec un niveau
-    if not member.nick: return 0
-    if regex.match(member.nick):
-        newNick = re.sub(r"\([0-9]*\)$", str("(%i)" %(lvl)), member.nick)
+
+    nick = member.nick if member.nick else  member.name
+
+    if regex.match(nick):
+        newNick = re.sub(r"\([0-9]*\)$", str("(%i)" %(lvl)), nick)
     else:
-        newNick = member.nick + str(" (%i)" %(lvl))
+        newNick = nick + str(" (%i)" %(lvl))
 
     await client.change_nickname(member, newNick)
-    return 1
 async def changeTeam(team, member):
     """enleve tous les rôles d'un utilisateur sauf '@everyone' et '@modo' puis place le member dans la team appropriée
     return 1 si le changement est effectif 0 sinon"""
@@ -238,7 +238,7 @@ async def on_message(message):
                 await client.send_message(message.channel, rappelCommand("lvl"))
                 return
 
-            addLevel(lvl, message.author)
+            await addLevel(lvl, message.author)
             await client.delete_message(message)
         if message.content.lower().startswith("!team") and len(args) == 2:
             #variable check
