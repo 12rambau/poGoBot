@@ -37,24 +37,6 @@ class Raid:
             self.eclosion = 0
         self.battlePlace = battlePlace
 
-    def afficherConsole(self):
-        """permet d'afficher en console le raid selectionné"""
-        print("id: %i" %(self.id))
-        print("pokeId: %i" %(self.pokeId))
-        print("nb Participants: %i" %(len(self.participants)))
-        if isinstance(self.lancement, datetime.datetime):
-            print ("lancement à: %s" %(self.lancement.strftime("%H:%M")))
-        else:
-            print ("lancement : ?")
-        if isinstance(self.fin, datetime.datetime):
-            print("fin à: %s" %(self.fin.strftime("%H:%M")))
-        else:
-            print("fin à: ?")
-        if isinstance(self.eclosion, datetime.datetime):
-            print("eclosion: %s" %(self.eclosion.strftime("%H:%M")))
-        else:
-            print("eclosion: ?")
-
     def embed(self):
         """ Retourne un embed formaté pour être lu par discord"""
         if self.pokeId > 0:
