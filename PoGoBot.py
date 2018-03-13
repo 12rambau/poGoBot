@@ -237,7 +237,7 @@ async def on_message(message):
                 return
 
             addLevel(lvl, message.author)
-            await client.delete_message(message.channel)
+            await client.delete_message(message)
         if message.content.lower().startswith("!team") and len(args) == 2:
             #variable check
             team = args[1]
