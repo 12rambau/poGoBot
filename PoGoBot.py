@@ -199,7 +199,7 @@ async def on_message(message):
             #variable check
             try:
                 assert isFuture(battleTime)
-                assert (isPokemon(pokeName) or isOeufName(pokename))
+                assert (isPokemon(pokeName) or isOeufName(pokeName))
                 assert isUniquePlace(battlePlace, cRaids)
             except AssertionError:
                 await client.send_message(message.channel, rappelCommand("add"))
