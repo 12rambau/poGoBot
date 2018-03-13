@@ -87,7 +87,7 @@ def isOeufName(pokeName):
     if isinstance(pokename, str):
         regexOeuf = re.compile(r"T[0-9]")
         regexEx = re.compile(r"Tex")
-        if regexOeuf.match(pokename) or regexEx.match(pokename): return 1
+        if regexOeuf.match(pokeName) or regexEx.match(pokeName): return 1
     return 0
 def rappelCommand(commandName):
     """envoi à l'utilisateur un message permettant de reexpliquer la commande"""
