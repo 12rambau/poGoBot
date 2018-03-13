@@ -121,7 +121,7 @@ async def waitTimer():
         toDelete = []
         for cCurrent in client.get_all_channels():
             if regex.match(cCurrent.name):
-                numRaid = int(cCurrent.name[0])
+                numRaid = getNumChannel(cCurrent.name)
                 cRaidCurrent = cRaids[numRaid]
                 now = datetime.datetime.now()
                 if cRaidCurrent.raid.fin < now:
@@ -261,7 +261,7 @@ async def on_message(message):
 
     #écoute des channels de raid
     elif regex.match(message.channel.name):
-        numRaid = int(message.channel.name[0])
+        numRaid = getNumChannel(message.channel.name)
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
             if message.content.lower() == "!in":
@@ -328,7 +328,7 @@ async def on_message(message):
 async def on_reaction_add(reaction, user):
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
     if regex.match(reaction.message.channel.name):
-        numRaid = int(reaction.message.channel.name[0])
+        numRaid = getNumChannel(reaction.message.channel.name)
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
             if reaction.emoji == '👌':
@@ -340,7 +340,7 @@ async def on_reaction_add(reaction, user):
 async def on_reaction_remove(reaction, user):
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
     if regex.match(reaction.message.channel.name):
-        numRaid = int(reaction.message.channel.name[0])
+        numRaid = getNumChannel(reaction.message.channel.name)
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
             if reaction.emoji == '👌':

@@ -127,7 +127,17 @@ def convertTime(time):
     time = time.replace(hour=int(args[0]), minute=int(args[1]), second=0)
 
     return time
+def getNumChannel(name):
+    """retourne l'id du salon"""
+    index = name.find("_")
+    numRaid = int(name[:index])
+    assert(numRaid > 0)
+
+    return numRaid
 
 if __name__=="__main__":
     #debut des test unitaires
-    pass
+    string = "14_machin"
+    print ("%i" %getNumChannel(string))
+    string = "2_machin"
+    print ("%i" %getNumChannel(string))
