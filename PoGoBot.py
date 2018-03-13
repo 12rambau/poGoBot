@@ -103,8 +103,10 @@ async def changeTeam(team, member):
             await client.remove_roles(member, role)
     if not loop == 1:
         await client.send_message(member, str("tu va passer dans la team %s. Comme tu avais déjà un rôle tu va rester sans rôle pendant 1 heure" %str(team)))
-        await client.add_roles(member, next(r for r in server.roles if r.name == "@attente"))
+        attente = next(r for r in server.roles if r.name == "@attente")
+        await client.add_roles(member, attente)
         await asyncio.sleep(3600) #1 heure entière sans rôle
+        await client.remove_roles(member, attente)
 
     await client.add_roles(member, next(r for r in server.roles if r.name == team))
     return 1
