@@ -22,6 +22,7 @@ cAccueil = 0
 cDiscussion = 0
 cPokemon = 0
 cRaidAdd = 0
+cAdmin = 0
 
 #gesionnaire de la liste de RAid
 async def addToListe(cRaid):
@@ -142,6 +143,7 @@ async def on_ready():
     global cPokemon
     global cRaidAdd
     global server
+    global cAdmin
 
     #recuperer le server
     server = client.get_server(os.environ["DISCORD_SERVER_ID"])
@@ -159,6 +161,8 @@ async def on_ready():
         elif cCurrent.name == "raid":
             cRaidAdd = cCurrent
             await client.purge_from(cRaidAdd)
+        elif cCurrent.name == "admin":
+            cAdmin = cCurrent
         elif regex.match(cCurrent.name):
             cToDelete.append(cCurrent.id)
 
@@ -196,6 +200,7 @@ async def on_message(message):
     global cRaidList
     global cAccueil
     global server
+    global cAdmin
 
     #se debarasser des messages privés
     if message.channel.is_private: return
@@ -346,5 +351,14 @@ async def on_reaction_remove(reaction, user):
             if reaction.emoji == '👌':
                 cCurrent.raid.retirerParticipant(user)
                 await editCRaid(cCurrent)
+
+@client.event
+async def on_member_join(member):
+    intro = "bite"
+    try:
+        intro = next(m for m in await client.pins_from(cAdmin) if m.content.startswith("!intro"))
+    except StopIteration:
+        await client.send_message(member, "va reveiller ton admin et dis lui qu'il a oublié le message d'accueil. Au fait BONJOUR !!")
+    await client.send_message(member, intro.content.replace("!intro", ""))
 
 client.run(os.environ['DISCORD_TOKEN'])
