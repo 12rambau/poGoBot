@@ -38,7 +38,7 @@ def isPokemon(pokeName):
     for ip, pokemon in enumerate(pokedex):
         for nom in pokemon.values():
             if nom == str(pokeName).lower(): return 1
-            
+
     return 0
 def lirePokeName(pokeName):
     """ Permet de lire le pokéName donné en entrée grace au dictionnaire de poketrad. Il pourra chercher en français et en anglais
@@ -84,7 +84,7 @@ def isUniquePlace(battlePlace, cRaids):
 def isOeufName(pokeName):
     """retourne 1 si c'est un nom d'oeuf, O sinon"""
     if isinstance(pokeName, str):
-        regexOeuf = re.compile(r"t[0-9]")
+        regexOeuf = re.compile(r"t[1-5]")
         regexEx = re.compile(r"tex")
         if regexOeuf.match(pokeName) or regexEx.match(pokeName): return 1
     return 0
