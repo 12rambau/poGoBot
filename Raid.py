@@ -26,9 +26,6 @@ class Raid:
         self.participants = []
         self.lancement = 0
         self.capitaine = capitaine
-        args = temps.split(":")
-        temps = datetime.datetime.now()
-        temps = temps.replace(hour=int(args[0]), minute=int(args[1]), second=0)
         if self.pokeId < 0:
             self.eclosion = temps
             self.fin = self.eclosion + Raid.TEMPS_PRESENCE
@@ -83,7 +80,7 @@ class Raid:
         """edite la date de lancement du raid
         renvoit 1 si la date est au bon format 0 sinon"""
         #tester la validité de la date
-        self.lancement = datetime.datetime.strptime(battleTime, "%H:%M")
+        self.lancement = battleTime
         return 1
 
     def faireEclore(self, pokeName):

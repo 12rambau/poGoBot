@@ -12,26 +12,22 @@ def isNotBot(m):
 def isRappelCommand(m):
     """ renvoit 1 si c'est un rappel de commande 0 sinon"""
     return m.content.startswith("Comme je suis sympa je te redonne la commande que tu as essayé de taper :")
-def isFuture(temps, now=datetime.datetime.now()):
+def isFuture(temps, ref=datetime.datetime.now()):
     """ prend en entree un heure au format %H:%M et test si elle appartien au future du now en entrée
     renvoit 1 si oui
     renvoit 0 si la date n'est pas au bon format ou si l'heure est dans le passée"""
-    if not isinstance(now, datetime.datetime): return 0
-    args = temps.split(":")
-    if not (len(args) == 2 and isinstance(int(args[0]), int) and isinstance(int(args[1]), int)): return 0
-    temps = now.replace(hour=int(args[0]), minute=int(args[1]), second=0)
+    assert isinstance(ref, datetime.datetime)
+    assert isinstance(temps, datetime.datetime)
 
-    return temps > now
-def isPast(temps, now=datetime.datetime.now()):
+    return temps > ref
+def isPast(temps, ref=datetime.datetime.now()):
     """ prend en entree un heure au format %H:%M et test si elle appartien au passé du now en entrée
     renvoit 1 si oui
     renvoit 0 si la date n'est pas au bon format ou si l'heure est dans le passée"""
-    if not isinstance(now, datetime.datetime): return 0
-    args = temps.split(":")
-    if not (len(args) == 2 and isinstance(int(args[0]), int) and isinstance(int(args[1]), int)): return 0
-    temps = now.replace(hour=int(args[0]), minute=int(args[1]), second=0)
+    assert isinstance(ref, datetime.datetime)
+    assert isinstance(temps, datetime.datetime)
 
-    return temps < now
+    return temps < ref
 def isPokemon(pokeName):
     """prend en entré un nom de pokemon ou un oeuf
     renvoit 1 si'il existe dans le pokedex
@@ -86,27 +82,50 @@ def isUniquePlace(battlePlace, cRaids):
 def isOeufName(pokeName):
     """retourne 1 si c'est un nom d'oeuf, O sinon"""
     if isinstance(pokeName, str):
-        regexOeuf = re.compile(r"T[0-9]")
-        regexEx = re.compile(r"Tex")
+        regexOeuf = re.compile(r"t[0-9]")
+        regexEx = re.compile(r"tex")
         if regexOeuf.match(pokeName) or regexEx.match(pokeName): return 1
     return 0
 def rappelCommand(commandName):
     """envoi à l'utilisateur un message permettant de reexpliquer la commande"""
     return str("Comme je suis sympa je te redonne la commande que tu as essayé de taper :\n %s" %commandex[commandName])
-def getTimeStr(time, intro):
-    assert isinstance(time, datetime)
+def getTimeStr(time, label):
+    """return the str corresponding to the time at (%H:%M) format with the appropriate label"""
 
     if time == 0:
-        temps = str("%s: ? \n" %intro)
+        temps = str("%s: ? \n" %label)
     else:
-        temps = str("%s: %s \n" %(intro, self.lancement.strftime("%H:%M")))
+        assert isinstance(time, datetime.datetime)
+        temps = str("%s: %s \n" %(label, time.strftime("%H:%M")))
 
     return temps
+def isHour(time):
+    """renvoit 1 si l'heure est au bon format pour etre transformé en heure, 0 sinon"""
+    try:
+        assert isinstance(time, str)
+
+        regex = re.compile(r"[0-9]*:[0-9]*")
+        assert regex.match(time)
+
+        args = time.split(":")
+        assert len(args) == 2 and isinstance(int(args[0]), int) and isinstance(int(args[1]), int)
+
+        heure = int(args[0])
+        minute = int(args[1])
+        assert heure < 24 and heure >= 0
+        assert minute < 60 and minute >= 0
+
+    except AssertionError:
+        return 0
+
+    return 1
+def convertTime(time):
+    args = time.split(":")
+    time = datetime.datetime.now()
+    time = time.replace(hour=int(args[0]), minute=int(args[1]), second=0)
+
+    return time
 
 if __name__=="__main__":
     #debut des test unitaires
-    temps = "00:10"
-    now = datetime.datetime.now()
-    if isFuture(temps): print(str("%s c'est dans le future" %temps))
-    if isFuture(temps, now): print(str("%s c'est dans le future" %temps))
-    if isPast(temps, now): print(str("%s c'est dans le passé" %temps))
+    pass

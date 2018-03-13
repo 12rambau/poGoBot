@@ -210,6 +210,8 @@ async def on_message(message):
 
             #variable check
             try:
+                assert isHour(battleTime)
+                battleTime = convertTime(battleTime)
                 assert isFuture(battleTime)
                 assert (isPokemon(pokeName) or isOeufName(pokeName))
                 assert isUniquePlace(battlePlace, cRaids)
@@ -271,6 +273,8 @@ async def on_message(message):
             elif args[0] == "!launch" and len(args) == 2:
                 battleTime = args[1]
                 try:
+                    assert isHour(battleTime)
+                    battleTime = convertTime(battleTime)
                     assert isFuture(battleTime)
                     assert isPast(battleTime, cCurrent.raid.fin)
                 except AssertionError:
