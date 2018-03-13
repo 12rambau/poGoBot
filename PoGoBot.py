@@ -103,7 +103,7 @@ async def changeTeam(team, member):
         if not (role.name == "@everyone" or role.name == "@modo"):
             await client.remove_roles(member, role)
     if not loop == 1:
-        await client.send_message(member, str("tu va passer dans la team %s. Comme tu avais déjà un rôle tu va rester sans rôle pendant 1 heure" %str(team)))
+        await client.send_message(member, str("Tu vas rejoindre la team %s. Comme tu avais déjà une team, tu vas rester sans rôle pendant 1 heure et l'administrateur a été informé de ce changement." %str(team)))
         attente = next(r for r in server.roles if r.name == str("almost_%s" %(team)))
         await client.add_roles(member, attente)
         await asyncio.sleep(3600) #1 heure entière sans rôle
@@ -166,7 +166,7 @@ async def on_ready():
         await client.delete_channel(client.get_channel(cId))
 
     #ecrire le message initiale des raid
-    await client.send_message(cRaidAdd, "liste des raids en cours")
+    await client.send_message(cRaidAdd, "Liste des raids en cours")
 
     print("Bot is ready and back online !")
 
