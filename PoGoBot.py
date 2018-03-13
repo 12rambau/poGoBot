@@ -118,16 +118,20 @@ async def waitTimer():
         await asyncio.sleep(10)
 
         regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
-
+        toDelete = []
         for cCurrent in client.get_all_channels():
             if regex.match(cCurrent.name):
                 numRaid = int(cCurrent.name[0])
                 cRaidCurrent = cRaids[numRaid]
-                date = datetime.datetime.now()
-                if cRaidCurrent.raid.fin < date:
-                    if not cRaidCurrent.retirerRaid(): continue
-                    if not await removeCRaid(cRaidCurrent): continue
-                    del cRaids[numRaid]
+                now = datetime.datetime.now()
+                if cRaidCurrent.raid.fin < now:
+                    toDelete.append(cRaidCurrent)
+
+        for cRaidCurrent in toDelete:
+            cId = cRaidCurrent.id
+            cRaidCurrent.retirerRaid()
+            await removeCRaid(cRaidCurrent)
+            del cRaids[cId]
 
 #routine demarage
 @client.event
@@ -156,10 +160,10 @@ async def on_ready():
             cRaidAdd = cCurrent
             await client.purge_from(cRaidAdd)
         elif regex.match(cCurrent.name):
-            cToDelete.append(cCurrent)
+            cToDelete.append(cCurrent.id)
 
-        for cCurrent in cToDelete:
-            await client.delete_channel(cCurrent)
+    for cId in cToDelete:
+        await client.delete_channel(client.get_channel(cId))
 
     #ecrire le message initiale des raid
     await client.send_message(cRaidAdd, "liste des raids en cours")
