@@ -39,42 +39,19 @@ class Raid:
 
     def embed(self):
         """ Retourne un embed formaté pour être lu par discord"""
-        if self.pokeId > 0:
-            embed = discord.Embed(title = lirePokeId(self.pokeId).upper())
-        else:
-            embed = discord.Embed(title=str("Raid LvL%i" %(-self.pokeId)))
+        embed = discord.Embed(title=self.getTitre())
+        embed.set_thumbnail(url=self.getUrl())
 
-        if self.pokeId > 0:
-            url = str("https://pokemon.gameinfo.io/images/pokemon/%i.png" %(self.pokeId))
-        elif self.pokeId == -5:
-            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Legendary-Egg.png"
-        elif self.pokeId == -4 or self.pokeId == -3:
-            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Rare-Egg-Yellow.png"
-        elif self.pokeId == -2 or self.pokeId == -1:
-            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Normal-Egg-Pink.png"
-        embed.set_thumbnail(url=url)
-        if self.capitaine.nick:
-            field = str("capitaine: @%s \n" %(self.capitaine.nick))
-        else:
-            field = str("capitaine: @%s \n" %(self.capitaine.name))
-        if self.lancement == 0:
-            field += str("lancement: ? \n")
-        else:
-            field += str("lancement: %s \n" %(self.lancement.strftime("%H:%M")))
+        field = self.getCapitaine()
+        field += getTimeStr(self.lancement, "lancement")
         if self.pokeId < 0:
-            field += str('ecclosion: %s \n' %(self.eclosion.strftime("%H:%M")))
+            field += getTimeStr(self.eclosion, "eclosion")
         else:
-            field += str('fin: %s \n' %(self.fin.strftime("%H:%M")))
+            field += getTimeStr(self.fin, "fin")
         field += str("%i participants \n" %(len(self.participants)))
         embed.add_field(name=self.battlePlace.lower(), value=field)
 
-        listParticipant = ""
-        for participant in self.participants:
-            if participant.nick:
-                listParticipant += str("@%s" %(participant.nick))
-            else:
-                listParticipant += str("@%s" %(participant.name))
-        embed.set_footer(text=listParticipant)
+        embed.set_footer(text=self.getListParticipants())
 
         return embed
 
@@ -140,6 +117,44 @@ class Raid:
         message += str("avec %i personnes \n" %(len(self.participants)))
 
         return message
+
+    def getUrl(self):
+        if self.pokeId > 0:
+            url = str("https://pokemon.gameinfo.io/images/pokemon/%i.png" %(self.pokeId))
+        elif self.pokeId == -5:
+            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Legendary-Egg.png"
+        elif self.pokeId == -4 or self.pokeId == -3:
+            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Rare-Egg-Yellow.png"
+        elif self.pokeId == -2 or self.pokeId == -1:
+            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Normal-Egg-Pink.png"
+
+        return url
+
+    def getTitre(self):
+        if self.pokeId > 0:
+            titre = lirePokeId(self.pokeId).upper()
+        else:
+            titre = str("Raid LvL%i" %(-self.pokeId))
+
+        return titre
+
+    def getCapitaine(self):
+        if self.capitaine.nick:
+            capitaine = str("capitaine: @%s \n" %(self.capitaine.nick))
+        else:
+            capitaine = str("capitaine: @%s \n" %(self.capitaine.name))
+
+        return capitaine
+
+    def getListParticipants(self):
+        listParticipant = ""
+        for participant in self.participants:
+            if participant.nick:
+                listParticipant += str("@%s" %(participant.nick))
+            else:
+                listParticipant += str("@%s" %(participant.name))
+
+        return listParticipant
 
 if __name__=="__main__":
     #debut des test unitaires

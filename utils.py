@@ -93,6 +93,15 @@ def isOeufName(pokeName):
 def rappelCommand(commandName):
     """envoi à l'utilisateur un message permettant de reexpliquer la commande"""
     return str("Comme je suis sympa je te redonne la commande que tu as essayé de taper :\n %s" %commandex[commandName])
+def getTimeStr(time, intro):
+    assert isinstance(time, datetime)
+
+    if time == 0:
+        temps = str("%s: ? \n" %intro)
+    else:
+        temps = str("%s: %s \n" %(intro, self.lancement.strftime("%H:%M")))
+
+    return temps
 
 if __name__=="__main__":
     #debut des test unitaires
