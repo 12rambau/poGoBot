@@ -13,15 +13,13 @@ import unidecode
 import sys
 
 Client = discord.Client()
-client = commands.Bot(command_prefix = "?")
+client = commands.Bot(command_prefix = "")
 
 cookieCompteur = 0
 cRaids = {}
 server = 0
 
 cAccueil = 0
-cDiscussion = 0
-cPokemon = 0
 cRaidAdd = 0
 cAdmin = 0
 
@@ -101,12 +99,15 @@ async def changeTeam(team, member):
         if role.name.startswith("almost_"): return 0
 
     previous = False
+    old_team = "rien"
     for role in member.roles:
         if teamdex.get(str("%s" %role.name)):
             previous = True
+            old_team = role.name
             await client.remove_roles(member, role)
     if previous:
-        await client.send_message(member, str("Tu vas rejoindre la team %s. Comme tu avais déjà une team, tu vas rester sans rôle pendant 1 heure et l'administrateur a été informé de ce changement." %str(team)))
+        await client.send_message(member, str("Tu vas rejoindre la team %s. Comme tu avais déjà une team, tu vas rester sans rôle pendant 1 heure et l'administrateur a été informé de ce changement." %team))
+        await client.send_message(server.owner, str("<@%s> va passé de la team %s à la team %s" %(member.id, old_team, team )))
         attente = next(r for r in server.roles if r.name == str("almost_%s" %(team)))
         await client.add_roles(member, attente)
         await asyncio.sleep(3600) #1 heure entière sans rôle
@@ -126,20 +127,25 @@ async def changeNick(newNick, member):
         newNick = re.sub(r"^.* \(", str("%s (" %newNick), nick)
 
     await client.change_nickname(member, newNick)
+
+
 # timer toutes les 10s
 async def waitTimer():
+
+    regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
+
     while True:
         await asyncio.sleep(10)
 
+        now = datetime.datetime.now()
+
         #test pour comprendre le bug de suppression des raids
         try:
-            regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
             toDelete = []
             for cCurrent in client.get_all_channels():
                 if regex.match(cCurrent.name):
                     numRaid = getNumChannel(cCurrent.name)
                     cRaidCurrent = cRaids[numRaid]
-                    now = datetime.datetime.now()
                     if cRaidCurrent.raid.fin < now:
                         toDelete.append(cRaidCurrent)
 
@@ -159,8 +165,6 @@ async def waitTimer():
 async def on_ready():
     #variable externes
     global cAccueil
-    global cDiscussion
-    global cPokemon
     global cRaidAdd
     global server
     global cAdmin
@@ -171,18 +175,15 @@ async def on_ready():
     #on identifie tous les salon sur lesquel peut agir le bot
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
     cToDelete = []
-    for cCurrent in client.get_all_channels():
-        if cCurrent.name == "accueil":
+    for cCurrent in server.channels:
+        if cCurrent.name.lower() == "accueil":
             cAccueil = cCurrent
-        elif cCurrent.name == "discussion":
-            cDiscussion = cCurrent
-        elif cCurrent.name == "pokemon":
-            cPokemon = cCurrent
-        elif cCurrent.name == "raid":
+        elif cCurrent.name.lower() == "raid":
             cRaidAdd = cCurrent
             await client.purge_from(cRaidAdd)
-        elif cCurrent.name == "admin":
+        elif cCurrent.name.lower() == "admin":
             cAdmin = cCurrent
+            await client.send_message(cAdmin, "Bot is ready and back online !")
         elif regex.match(cCurrent.name):
             cToDelete.append(cCurrent.id)
 
@@ -228,11 +229,15 @@ async def on_message(message):
     #variables internes
     args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
+
+    #n'import où
     if message.content.lower() == "!cookie" and message.channel != cRaidAdd:
         cookieCompteur +=  1
         await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
         await client.delete_message(message)
-
+    elif message.content.lower() == "!help":
+        await client.send_message(message.channel, sendHelp())
+        await client.delete_message(message)
     #on écoute la channel d'add
     elif message.channel == cRaidAdd:
         if message.content.lower().startswith("!add") and not len(args) < 4:
