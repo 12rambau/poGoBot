@@ -20,7 +20,6 @@ cRaids = {}
 server = 0
 
 cAccueil = 0
-cDiscussion = 0
 cPokemon = 0
 cRaidAdd = 0
 cAdmin = 0
@@ -159,7 +158,6 @@ async def waitTimer():
 async def on_ready():
     #variable externes
     global cAccueil
-    global cDiscussion
     global cPokemon
     global cRaidAdd
     global server
@@ -174,8 +172,6 @@ async def on_ready():
     for cCurrent in client.get_all_channels():
         if cCurrent.name == "accueil":
             cAccueil = cCurrent
-        elif cCurrent.name == "discussion":
-            cDiscussion = cCurrent
         elif cCurrent.name == "pokemon":
             cPokemon = cCurrent
         elif cCurrent.name == "raid":
