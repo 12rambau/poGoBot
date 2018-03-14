@@ -65,10 +65,10 @@ def lirePokeId(pokeId):
     elif pokeId > 0 and pokeId < len(pokedex):
         return pokedex[pokeId-1]["fr"]
     else: return 0
-def isTeam(team):
+def teamName(team):
     """verifie si la team appartien au dictionnaire
     renvoit le teamName si oui, 0 sinon"""
-    if not isinstance(team, str): return 0
+    assert isinstance(team, str)
 
     for teamName, trad in teamdex.items():
         if team == trad["fr"]: return teamName
@@ -134,6 +134,14 @@ def getNumChannel(name):
     assert(numRaid > 0)
 
     return numRaid
+def isLevel(lvl):
+    """renvoit 1 si c'est un level correct 0 sinon"""
+    assert isinstance(lvl, int)
+
+    if lvl <= 40 and lvl > 0:
+        return 1
+    else:
+        return 0
 
 if __name__=="__main__":
     #debut des test unitaires

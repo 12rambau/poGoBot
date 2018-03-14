@@ -93,9 +93,10 @@ async def addLevel(lvl, member):
 async def changeTeam(team, member):
     """enleve tous les rôles d'un utilisateur sauf '@everyone' et '@modo' puis place le member dans la team appropriée
     return 1 si le changement est effectif 0 sinon"""
-    team = isTeam(team)
-    if not team: return 0
-    if not isinstance(member, discord.Member): return 0
+    team = teamName(team)
+    assert team
+    assert isinstance(member, discord.Member)
+
     for role in member.roles:
         if role.name.startswith("almost_"): return 0
 
@@ -113,7 +114,18 @@ async def changeTeam(team, member):
 
     await client.add_roles(member, next(r for r in server.roles if r.name == team))
     return 1
+async def changeNick(newNick, member):
+    """donne un surnom au joueur en tenant compte du niveau eventuellement renseigner"""
+    assert isinstance(member, discord.Member)
 
+    regex = re.compile(r"^.* \([0-9]*\)$") #un nick avec un niveau
+
+    nick = member.nick if member.nick else  member.name
+
+    if regex.match(nick):
+        newNick = re.sub(r"^.* \(", str("%s (" %newNick), nick)
+
+    await client.change_nickname(member, newNick)
 # timer toutes les 10s
 async def waitTimer():
     while True:
@@ -137,6 +149,7 @@ async def waitTimer():
                 await removeCRaid(cRaidCurrent)
                 del cRaids[cId]
         except: #catch all errors
+            await client.send_message(cAdmin, "j'ai bugé")
             e = sys.exc_info()[0]
             await client.send_message(cAdmin, str("erreur : \n%s" %e))
             continue
@@ -253,24 +266,35 @@ async def on_message(message):
             #variable check
             try:
                 lvl = int(args[1])
-            except ValueError:
+                assert isLevel(lvl)
+            except (ValueError, AssertionError):
                 await client.send_message(message.channel, rappelCommand("lvl"))
                 return
 
             await addLevel(lvl, message.author)
             await client.delete_message(message)
-        if message.content.lower().startswith("!team") and len(args) == 2:
+        elif message.content.lower().startswith("!team") and len(args) == 2:
             #variable check
             team = args[1]
             try:
-                assert isTeam(team)
+                assert teamName(team)
             except AssertionError:
                 await client.send_message(message.channel, rappelCommand("team"))
                 return
 
             await changeTeam(team, message.author)
             await client.delete_message(message)
+        elif message.content.lower().startswith("!nick"):
+            #variable check
+            try:
+                assert len(args) == 2
+                newNick = args[1]
+            except AssertionError:
+                await client.send_message(message.channel, rappelCommand("nick"))
+                return
 
+            await changeNick(newNick, message.author)
+            await client.delete_message(message)
     #écoute des channels de raid
     elif regex.match(message.channel.name):
         numRaid = getNumChannel(message.channel.name)

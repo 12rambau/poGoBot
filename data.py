@@ -401,7 +401,8 @@ commandex = {
     "edit":     "!edit [pokeName]",
     "launch":   "!launch [heure de lancement]",
     "in":       "!in OR !in @[user]",
-    "out":      "!out OR !out @[user]"
+    "out":      "!out OR !out @[user]",
+    "nick":     "!nick [new_nickname]"
 
 
 
