@@ -402,9 +402,6 @@ commandex = {
     "launch":   "!launch [heure de lancement]",
     "in":       "!in OR !in @[user]",
     "out":      "!out OR !out @[user]",
-    "nick":     "!nick [new_nickname]"
-
-
-
-
+    "nick":     "!nick [new_nickname]",
+    "help":     "!help"
 }

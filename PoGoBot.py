@@ -124,6 +124,8 @@ async def changeNick(newNick, member):
         newNick = re.sub(r"^.* \(", str("%s (" %newNick), nick)
 
     await client.change_nickname(member, newNick)
+
+
 # timer toutes les 10s
 async def waitTimer():
     while True:
@@ -168,7 +170,6 @@ async def on_ready():
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
     cToDelete = []
     for cCurrent in server.channels:
-        print(cCurrent.name)
         if cCurrent.name.lower() == "accueil":
             cAccueil = cCurrent
         elif cCurrent.name.lower() == "raid":
@@ -180,7 +181,6 @@ async def on_ready():
         elif regex.match(cCurrent.name):
             cToDelete.append(cCurrent.id)
 
-    print (count)
     for cId in cToDelete:
         await client.delete_channel(client.get_channel(cId))
 
@@ -223,11 +223,15 @@ async def on_message(message):
     #variables internes
     args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
+
+    #n'import où
     if message.content.lower() == "!cookie" and message.channel != cRaidAdd:
         cookieCompteur +=  1
         await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
         await client.delete_message(message)
-
+    elif message.content.lower() == "!help":
+        await client.send_message(message.channel, sendHelp())
+        await client.delete_message(message)
     #on écoute la channel d'add
     elif message.channel == cRaidAdd:
         if message.content.lower().startswith("!add") and not len(args) < 4:
