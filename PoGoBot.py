@@ -276,7 +276,27 @@ async def on_message(message):
         numRaid = getNumChannel(message.channel.name)
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
-            if message.content.lower() == "!in":
+            if args[0].lower() == "!in" and len(args) == 2:
+                userId = args[1].replace('<@', '').replace('>', '').replace('!','')
+                try:
+                    user = next( m for m in client.get_all_members() if m.id == userId)
+                except StopIteration:
+                    await client.send_message(message.channel, rappelCommand("in"))
+                    return
+
+                cCurrent.raid.ajouterParticipant(user)
+                await editCRaid(cCurrent)
+            elif args[0].lower() == "!out" and len(args) == 2:
+                userId = args[1].replace('<@', '').replace('>', '').replace('!','')
+                try:
+                    user = next( m for m in client.get_all_members() if m.id == userId)
+                except StopIteration:
+                    await client.send_message(message.channel, rappelCommand("out"))
+                    return
+
+                cCurrent.raid.retirerParticipant(user)
+                await editCRaid(cCurrent)
+            elif message.content.lower() == "!in":
                 cCurrent.raid.ajouterParticipant(message.author)
                 await editCRaid(cCurrent)
                 await client.delete_message(message)
@@ -314,26 +334,6 @@ async def on_message(message):
                 cCurrent.raid.faireEclore(pokeName)
                 await editCRaid(cCurrent)
                 await client.delete_message(message)
-            elif args[0].lower() == "!dispo" and len(args) == 2:
-                userId = args[1].replace('<@', '').replace('>', '').replace('!','')
-                try:
-                    user = next( m for m in client.get_all_members() if m.id == userId)
-                except StopIteration:
-                    await client.send_message(message.channel, rappelCommand("dispo"))
-                    return
-
-                cCurrent.raid.ajouterParticipant(user)
-                await editCRaid(cCurrent)
-            elif args[0].lower() == "!plus" and args[1].lower() == "dispo" and len(args) == 3:
-                userId = args[2].replace('<@', '').replace('>', '').replace('!','')
-                try:
-                    user = next( m for m in client.get_all_members() if m.id == userId)
-                except StopIteration:
-                    await client.send_message(message.channel, rappelCommand("plus dispo"))
-                    return
-
-                cCurrent.raid.retirerParticipant(user)
-                await editCRaid(cCurrent)
 
 #ajout d'emoji
 @client.event
