@@ -10,6 +10,7 @@ from Channel import *
 from data import *
 from utils import *
 import unidecode
+import sys 
 
 Client = discord.Client()
 client = commands.Bot(command_prefix = "?")
@@ -118,21 +119,27 @@ async def waitTimer():
     while True:
         await asyncio.sleep(10)
 
-        regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
-        toDelete = []
-        for cCurrent in client.get_all_channels():
-            if regex.match(cCurrent.name):
-                numRaid = getNumChannel(cCurrent.name)
-                cRaidCurrent = cRaids[numRaid]
-                now = datetime.datetime.now()
-                if cRaidCurrent.raid.fin < now:
-                    toDelete.append(cRaidCurrent)
+        #test pour comprendre le bug de suppression des raids
+        try:
+            regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
+            toDelete = []
+            for cCurrent in client.get_all_channels():
+                if regex.match(cCurrent.name):
+                    numRaid = getNumChannel(cCurrent.name)
+                    cRaidCurrent = cRaids[numRaid]
+                    now = datetime.datetime.now()
+                    if cRaidCurrent.raid.fin < now:
+                        toDelete.append(cRaidCurrent)
 
-        for cRaidCurrent in toDelete:
-            cId = cRaidCurrent.id
-            cRaidCurrent.retirerRaid()
-            await removeCRaid(cRaidCurrent)
-            del cRaids[cId]
+            for cRaidCurrent in toDelete:
+                cId = cRaidCurrent.id
+                cRaidCurrent.retirerRaid()
+                await removeCRaid(cRaidCurrent)
+                del cRaids[cId]
+        except: #catch all errors
+            e = sys.exc_info()[0]
+            await client.send_message(cAdmin, str("erreur : \n%s" %e))
+            continue
 
 #routine demarage
 @client.event
@@ -184,7 +191,7 @@ async def on_ready():
                 await client.add_roles(member, newRole)
 
     #on lance le garbage collector
-    await waitTimer()
+        await waitTimer()
 
     #si on atteint cet endroit c'est que le garbage collector a craché
     print ('bug')
