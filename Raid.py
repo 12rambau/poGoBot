@@ -26,9 +26,6 @@ class Raid:
         self.participants = []
         self.lancement = 0
         self.capitaine = capitaine
-        args = temps.split(":")
-        temps = datetime.datetime.now()
-        temps = temps.replace(hour=int(args[0]), minute=int(args[1]), second=0)
         if self.pokeId < 0:
             self.eclosion = temps
             self.fin = self.eclosion + Raid.TEMPS_PRESENCE
@@ -37,56 +34,21 @@ class Raid:
             self.eclosion = 0
         self.battlePlace = battlePlace
 
-    def afficherConsole(self):
-        """permet d'afficher en console le raid selectionné"""
-        print("id: %i" %(self.id))
-        print("pokeId: %i" %(self.pokeId))
-        print("nb Participants: %i" %(len(self.participants)))
-        if isinstance(self.lancement, datetime.datetime):
-            print ("lancement à: %s" %(self.lancement.strftime("%H:%M")))
-        else:
-            print ("lancement : ?")
-        if isinstance(self.fin, datetime.datetime):
-            print("fin à: %s" %(self.fin.strftime("%H:%M")))
-        else:
-            print("fin à: ?")
-        if isinstance(self.eclosion, datetime.datetime):
-            print("eclosion: %s" %(self.eclosion.strftime("%H:%M")))
-        else:
-            print("eclosion: ?")
-
     def embed(self):
         """ Retourne un embed formaté pour être lu par discord"""
-        if self.pokeId > 0:
-            embed = discord.Embed(title = lirePokeId(self.pokeId).upper())
-        else:
-            embed = discord.Embed(title=str("Raid LvL%i" %(-self.pokeId)))
+        embed = discord.Embed(title=self.getTitre())
+        embed.set_thumbnail(url=self.getUrl())
 
-        if self.pokeId > 0:
-            url = str("https://pokemon.gameinfo.io/images/pokemon/%i.png" %(self.pokeId))
-        elif self.pokeId == -5:
-            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Legendary-Egg.png"
-        elif self.pokeId == -4 or self.pokeId == -3:
-            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Rare-Egg-Yellow.png"
-        elif self.pokeId == -2 or self.pokeId == -1:
-            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Normal-Egg-Pink.png"
-        embed.set_thumbnail(url=url)
-        field = str("capitaine: @%s \n" %(self.capitaine.nick))
-        if self.lancement == 0:
-            field += str("lancement: ? \n")
-        else:
-            field += str("lancement: %s \n" %(self.lancement.strftime("%H:%M")))
+        field = self.getCapitaine()
+        field += getTimeStr(self.lancement, "lancement")
         if self.pokeId < 0:
-            field += str('ecclosion: %s \n' %(self.eclosion.strftime("%H:%M")))
+            field += getTimeStr(self.eclosion, "eclosion")
         else:
-            field += str('fin: %s \n' %(self.fin.strftime("%H:%M")))
+            field += getTimeStr(self.fin, "fin")
         field += str("%i participants \n" %(len(self.participants)))
         embed.add_field(name=self.battlePlace.lower(), value=field)
 
-        listParticipant = ""
-        for participant in self.participants:
-            listParticipant += str("@%s" %(participant.nick))
-        embed.set_footer(text=listParticipant)
+        embed.set_footer(text=self.getListParticipants())
 
         return embed
 
@@ -118,7 +80,7 @@ class Raid:
         """edite la date de lancement du raid
         renvoit 1 si la date est au bon format 0 sinon"""
         #tester la validité de la date
-        self.lancement = datetime.datetime.strptime(battleTime, "%H:%M")
+        self.lancement = battleTime
         return 1
 
     def faireEclore(self, pokeName):
@@ -152,6 +114,44 @@ class Raid:
         message += str("avec %i personnes \n" %(len(self.participants)))
 
         return message
+
+    def getUrl(self):
+        if self.pokeId > 0:
+            url = str("https://pokemon.gameinfo.io/images/pokemon/%i.png" %(self.pokeId))
+        elif self.pokeId == -5:
+            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Legendary-Egg.png"
+        elif self.pokeId == -4 or self.pokeId == -3:
+            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Rare-Egg-Yellow.png"
+        elif self.pokeId == -2 or self.pokeId == -1:
+            url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Normal-Egg-Pink.png"
+
+        return url
+
+    def getTitre(self):
+        if self.pokeId > 0:
+            titre = lirePokeId(self.pokeId).upper()
+        else:
+            titre = str("Raid LvL%i" %(-self.pokeId))
+
+        return titre
+
+    def getCapitaine(self):
+        if self.capitaine.nick:
+            capitaine = str("capitaine: @%s \n" %(self.capitaine.nick))
+        else:
+            capitaine = str("capitaine: @%s \n" %(self.capitaine.name))
+
+        return capitaine
+
+    def getListParticipants(self):
+        listParticipant = ""
+        for participant in self.participants:
+            if participant.nick:
+                listParticipant += str("@%s" %(participant.nick))
+            else:
+                listParticipant += str("@%s" %(participant.name))
+
+        return listParticipant
 
 if __name__=="__main__":
     #debut des test unitaires
