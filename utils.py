@@ -148,10 +148,11 @@ def sendHelp():
     message = "**Voilà un petit rappel des commandes que tu peux utiliser avec le PoGoBot**\n\n"
 
     for name, command in commandex.items():
-        message += str("%s:\t\t%s\n" %(name, command))
+        message += str("**%s:**\t\t%s\n" %(name, command))
 
+    message += "\nPour des renseignements plus prescis rend toi directement sur la doc en ligne :\n <https://github.com/12rambau/poGoBot/wiki>"
     return message
-    
+
 if __name__=="__main__":
     #debut des test unitaires
     string = "14_machin"

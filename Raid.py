@@ -137,9 +137,9 @@ class Raid:
 
     def getCapitaine(self):
         if self.capitaine.nick:
-            capitaine = str("capitaine: @%s \n" %(self.capitaine.nick))
+            capitaine = str("chef: @%s \n" %(self.capitaine.nick))
         else:
-            capitaine = str("capitaine: @%s \n" %(self.capitaine.name))
+            capitaine = str("chef: @%s \n" %(self.capitaine.name))
 
         return capitaine
 
