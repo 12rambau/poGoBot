@@ -142,7 +142,16 @@ def isLevel(lvl):
         return 1
     else:
         return 0
+def sendHelp():
+    """construct the help message to send to the user"""
 
+    message = "**Voilà un petit rappel des commandes que tu peux utiliser avec le PoGoBot**\n\n"
+
+    for name, command in commandex.items():
+        message += str("%s:\t\t%s\n" %(name, command))
+
+    return message
+    
 if __name__=="__main__":
     #debut des test unitaires
     string = "14_machin"
