@@ -99,12 +99,15 @@ async def changeTeam(team, member):
         if role.name.startswith("almost_"): return 0
 
     previous = False
+    old_team = "rien"
     for role in member.roles:
         if teamdex.get(str("%s" %role.name)):
             previous = True
+            old_team = role.name
             await client.remove_roles(member, role)
     if previous:
-        await client.send_message(member, str("Tu vas rejoindre la team %s. Comme tu avais déjà une team, tu vas rester sans rôle pendant 1 heure et l'administrateur a été informé de ce changement." %str(team)))
+        await client.send_message(member, str("Tu vas rejoindre la team %s. Comme tu avais déjà une team, tu vas rester sans rôle pendant 1 heure et l'administrateur a été informé de ce changement." %team))
+        await client.send_message(server.owner, str("<@%s> va passé de la team %s à la team %s" %(member.id, old_team, team )))
         attente = next(r for r in server.roles if r.name == str("almost_%s" %(team)))
         await client.add_roles(member, attente)
         await asyncio.sleep(3600) #1 heure entière sans rôle
