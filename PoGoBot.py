@@ -10,7 +10,7 @@ from Channel import *
 from data import *
 from utils import *
 import unidecode
-import sys 
+import sys
 
 Client = discord.Client()
 client = commands.Bot(command_prefix = "?")
@@ -99,12 +99,12 @@ async def changeTeam(team, member):
     for role in member.roles:
         if role.name.startswith("almost_"): return 0
 
-    loop = 0
+    previous = False
     for role in member.roles:
-        loop += 1
-        if not (role.name == "@everyone" or role.name == "@modo"):
+        if teamdex.get(str("%s" %role.name)):
+            previous = True
             await client.remove_roles(member, role)
-    if not loop == 1:
+    if previous:
         await client.send_message(member, str("Tu vas rejoindre la team %s. Comme tu avais déjà une team, tu vas rester sans rôle pendant 1 heure et l'administrateur a été informé de ce changement." %str(team)))
         attente = next(r for r in server.roles if r.name == str("almost_%s" %(team)))
         await client.add_roles(member, attente)
