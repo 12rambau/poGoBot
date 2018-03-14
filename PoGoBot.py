@@ -13,14 +13,13 @@ import unidecode
 import sys
 
 Client = discord.Client()
-client = commands.Bot(command_prefix = "?")
+client = commands.Bot(command_prefix = "")
 
 cookieCompteur = 0
 cRaids = {}
 server = 0
 
 cAccueil = 0
-cPokemon = 0
 cRaidAdd = 0
 cAdmin = 0
 
@@ -158,7 +157,6 @@ async def waitTimer():
 async def on_ready():
     #variable externes
     global cAccueil
-    global cPokemon
     global cRaidAdd
     global server
     global cAdmin
@@ -169,19 +167,20 @@ async def on_ready():
     #on identifie tous les salon sur lesquel peut agir le bot
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
     cToDelete = []
-    for cCurrent in client.get_all_channels():
-        if cCurrent.name == "accueil":
+    for cCurrent in server.channels:
+        print(cCurrent.name)
+        if cCurrent.name.lower() == "accueil":
             cAccueil = cCurrent
-        elif cCurrent.name == "pokemon":
-            cPokemon = cCurrent
-        elif cCurrent.name == "raid":
+        elif cCurrent.name.lower() == "raid":
             cRaidAdd = cCurrent
             await client.purge_from(cRaidAdd)
-        elif cCurrent.name == "admin":
+        elif cCurrent.name.lower() == "admin":
             cAdmin = cCurrent
+            await client.send_message(cAdmin, "Bot is ready and back online !")
         elif regex.match(cCurrent.name):
             cToDelete.append(cCurrent.id)
 
+    print (count)
     for cId in cToDelete:
         await client.delete_channel(client.get_channel(cId))
 
