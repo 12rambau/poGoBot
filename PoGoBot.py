@@ -131,18 +131,21 @@ async def changeNick(newNick, member):
 
 # timer toutes les 10s
 async def waitTimer():
+
+    regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
+
     while True:
         await asyncio.sleep(10)
 
+        now = datetime.datetime.now()
+
         #test pour comprendre le bug de suppression des raids
         try:
-            regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
             toDelete = []
             for cCurrent in client.get_all_channels():
                 if regex.match(cCurrent.name):
                     numRaid = getNumChannel(cCurrent.name)
                     cRaidCurrent = cRaids[numRaid]
-                    now = datetime.datetime.now()
                     if cRaidCurrent.raid.fin < now:
                         toDelete.append(cRaidCurrent)
 
