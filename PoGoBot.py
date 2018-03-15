@@ -197,16 +197,17 @@ async def on_ready():
     print("Bot is ready and back online !")
 
     #changer les couleurs des utilisateurs en attente
-    for member in client.get_all_members():
+    for member in server.members:
         for role in member.roles:
             if role.name.startswith("almost_"):
+                oldRole = role
                 team = role.name.replace ("almost_", "")
                 newRole = next(r for r in server.roles if r.name == team)
-                await client.remove_roles(member, role)
+                await client.remove_roles(member, oldRole)
                 await client.add_roles(member, newRole)
 
     #on lance le garbage collector
-        await waitTimer()
+    await waitTimer()
 
     #si on atteint cet endroit c'est que le garbage collector a craché
     print ('bug')
@@ -231,44 +232,15 @@ async def on_message(message):
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
     #n'import où si on lui parle
-    if message.content.lower() == str("<@%s>" %client.user.id) and message.channel != cRaidAdd:
-        await client.send_message(message.channel, sendHelp())
-        await client.delete_message(message)
-    elif message.content.lower() == "!cookie" and message.channel != cRaidAdd:
-        cookieCompteur +=  1
-        await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
-        await client.delete_message(message)
-
-    #on écoute la channel d'add
-    elif message.channel == cRaidAdd:
-        if message.content.lower().startswith("!add") and not len(args) < 4:
-            pokeName = unidecode.unidecode(u"%s" %(args[1]))
-            battleTime = args[2]
-            battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[3:])))
-
-            #variable check
-            try:
-                assert isHour(battleTime)
-                battleTime = convertTime(battleTime)
-                assert isFuture(battleTime)
-                assert (isPokemon(pokeName) or isOeufName(pokeName))
-                assert isUniquePlace(battlePlace, cRaids)
-            except AssertionError:
-                await client.send_message(message.channel, rappelCommand("add"))
-                return
-
-            cCom = await client.create_channel(server, str("%i_%s-0" %(ChannelRaid.nb_channel+1,pokeName)))
-            cRaids[ChannelRaid.nb_channel] = ChannelRaid(cCom)
-            raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
-            cRaid = cRaids[ChannelRaid.nb_channel].ajouterRaid(raid)
-
-            await addToListe(cRaid)
-            cRaid.pinMsg = await client.send_message(cCom, embed=raid.embed())
-            await client.pin_message(cRaid.pinMsg)
-        elif isNotBot(message) : await client.delete_message(message)
-    #on écoute la channel d'accueil
-    elif message.channel == cAccueil:
-        if message.content.lower().startswith("!lvl") and len(args) == 2:
+    if message.channel != cRaidAdd:
+        if message.content.lower() == str("<@%s>" %client.user.id):
+            await client.send_message(message.channel, sendHelp())
+            await client.delete_message(message)
+        elif message.content.lower() == "!cookie" :
+            cookieCompteur +=  1
+            await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
+            await client.delete_message(message)
+        elif message.content.lower().startswith("!lvl") and len(args) == 2:
             #variable check
             try:
                 lvl = int(args[1])
@@ -301,6 +273,35 @@ async def on_message(message):
 
             await changeNick(newNick, message.author)
             await client.delete_message(message)
+
+    #on écoute la channel d'add
+    elif message.channel == cRaidAdd:
+        if message.content.lower().startswith("!add") and not len(args) < 4:
+            pokeName = unidecode.unidecode(u"%s" %(args[1]))
+            battleTime = args[2]
+            battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[3:])))
+
+            #variable check
+            try:
+                assert isHour(battleTime)
+                battleTime = convertTime(battleTime)
+                assert isFuture(battleTime)
+                assert (isPokemon(pokeName) or isOeufName(pokeName))
+                assert isUniquePlace(battlePlace, cRaids)
+            except AssertionError:
+                await client.send_message(message.channel, rappelCommand("add"))
+                return
+
+            cCom = await client.create_channel(server, str("%i_%s-0" %(ChannelRaid.nb_channel+1,pokeName)))
+            cRaids[ChannelRaid.nb_channel] = ChannelRaid(cCom)
+            raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
+            cRaid = cRaids[ChannelRaid.nb_channel].ajouterRaid(raid)
+
+            await addToListe(cRaid)
+            cRaid.pinMsg = await client.send_message(cCom, embed=raid.embed())
+            await client.pin_message(cRaid.pinMsg)
+        elif isNotBot(message) : await client.delete_message(message)
+
     #écoute des channels de raid
     elif regex.match(message.channel.name):
         numRaid = getNumChannel(message.channel.name)
