@@ -129,6 +129,7 @@ async def changeNick(newNick, member):
     await client.change_nickname(member, newNick)
 
 
+
 # timer toutes les 10s
 async def waitTimer():
 
@@ -222,8 +223,8 @@ async def on_message(message):
     global server
     global cAdmin
 
-    #se debarasser des messages privés
-    if message.channel.is_private: return
+    #se debarasser des messages privés et des disabled
+    if message.channel.is_private or not isAble(message.author): return
 
     #variables internes
     args = message.content.lower().split(" ")
@@ -389,12 +390,29 @@ async def on_reaction_remove(reaction, user):
                 await editCRaid(cCurrent)
 
 @client.event
-async def on_member_join(member):
-    intro = "bite"
+async def on_member_update(before, after):
+    try:
+        assert setAbled(before, after)
+    except AssertionError:
+        return
+
+    intro = ""
     try:
         intro = next(m for m in await client.pins_from(cAdmin) if m.content.startswith("!intro"))
     except StopIteration:
-        await client.send_message(member, "va reveiller ton admin et dis lui qu'il a oublié le message d'accueil. Au fait BONJOUR !!")
-    await client.send_message(member, intro.content.replace("!intro", ""))
+        await client.send_message(after, "va reveiller ton admin et dis lui qu'il a oublié le message d'accueil. Au fait BONJOUR !!")
+    await client.send_message(after, intro.content.replace("!intro", ""))
+
+
+
+@client.event
+async def on_member_join(member):
+    try:
+        role = next(r for r in server.roles if r.name == "disable")
+    except StopIteration:
+        await client.send_message(server.owner, "votre server ne comporte pas de sécurrité n'importe qui peut y faire n'importe quoi")
+
+    await client.add_roles(member, role)
+    await client.send_message(member, "Pour activer ta préscence sur le forum %s, merci de nous envoyer un screenshot de ton profil sur <@%s>" %(server.name, cAccueil.id))
 
 client.run(os.environ['DISCORD_TOKEN'])

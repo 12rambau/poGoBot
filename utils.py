@@ -3,6 +3,7 @@ from utils import *
 from data import *
 import re
 import unidecode
+import discord
 
 #function hors loop
 def isNotBot(m):
@@ -152,6 +153,26 @@ def sendHelp():
 
     message += "\nPour des renseignements plus prescis rend toi directement sur la doc en ligne :\n <https://github.com/12rambau/poGoBot/wiki>"
     return message
+def setAbled(before, after):
+    """ renvoit 1 si on vient de retirer disable au membre"""
+    assert isinstance(before, discord.Member)
+    assert isinstance(after, discord.Member)
+
+    for bRole in before.roles:
+        if bRole.name == "disable":
+            for aRole in after.roles:
+                if aRole == "disable":
+                    return 0
+            return 1
+    return 0
+def isAble(member):
+    """renvoit 1 si le user est able 0 sinon"""
+    assert isinstance(member, discord.Member)
+
+    for role in member.roles:
+        if role.name == "disable": return 0
+
+    return 1 
 
 if __name__=="__main__":
     #debut des test unitaires
