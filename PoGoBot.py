@@ -231,12 +231,12 @@ async def on_message(message):
     args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
-        #écoute des channels de raid
-        elif regex.match(message.channel.name):
-            numRaid = getNumChannel(message.channel.name)
-            cCurrent = cRaids[numRaid]
-            if cCurrent.isRaid():
-                if args[0].lower() == "!in" and len(args) == 2:
+    #écoute des channels de raid
+    if regex.match(message.channel.name):
+        numRaid = getNumChannel(message.channel.name)
+        cCurrent = cRaids[numRaid]
+        if cCurrent.isRaid():
+            if args[0].lower() == "!in" and len(args) == 2:
                     userId = args[1].replace('<@', '').replace('>', '').replace('!','')
                     try:
                         user = next( m for m in client.get_all_members() if m.id == userId)
@@ -246,7 +246,7 @@ async def on_message(message):
 
                     cCurrent.raid.ajouterParticipant(user)
                     await editCRaid(cCurrent)
-                elif args[0].lower() == "!out" and len(args) == 2:
+            elif args[0].lower() == "!out" and len(args) == 2:
                     userId = args[1].replace('<@', '').replace('>', '').replace('!','')
                     try:
                         user = next( m for m in client.get_all_members() if m.id == userId)
@@ -256,20 +256,20 @@ async def on_message(message):
 
                     cCurrent.raid.retirerParticipant(user)
                     await editCRaid(cCurrent)
-                elif message.content.lower() == "!in":
+            elif message.content.lower() == "!in":
                     cCurrent.raid.ajouterParticipant(message.author)
                     await editCRaid(cCurrent)
                     await client.delete_message(message)
-                elif message.content.lower() == "!out":
+            elif message.content.lower() == "!out":
                     cCurrent.raid.retirerParticipant(message.author)
                     await editCRaid(cCurrent)
                     await client.delete_message(message)
-                elif message.content.lower() == '!abort':
+            elif message.content.lower() == '!abort':
                     if message.author == cCurrent.raid.capitaine:
                         cCurrent.retirerRaid()
                         await removeCRaid(cCurrent)
                         del cRaids[cCurrent.id]
-                elif args[0] == "!launch" and len(args) == 2:
+            elif args[0] == "!launch" and len(args) == 2:
                     battleTime = args[1]
                     try:
                         assert isHour(battleTime)
@@ -283,7 +283,7 @@ async def on_message(message):
                     cCurrent.raid.choisirLaunch(battleTime)
                     await editCRaid(cCurrent)
                     await client.delete_message(message)
-                elif args[0].lower() == "!edit" and len(args) == 2:
+            elif args[0].lower() == "!edit" and len(args) == 2:
                     pokeName = unidecode.unidecode(u"%s" %(args[1]))
                     try:
                         assert isPokemon(pokeName)
@@ -294,9 +294,9 @@ async def on_message(message):
                     cCurrent.raid.faireEclore(pokeName)
                     await editCRaid(cCurrent)
                     await client.delete_message(message)
-                    
+
     #n'import où si on lui parle
-    if message.channel != cRaidAdd:
+    elif message.channel != cRaidAdd:
         if message.content.lower() == str("<@%s>" %client.user.id):
             await client.send_message(message.channel, sendHelp())
             await client.delete_message(message)
