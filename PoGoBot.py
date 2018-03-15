@@ -71,6 +71,11 @@ async def editCRaid(cRaid):
     await client.edit_channel(cRaid.com, name=newName)
     await editListe(cRaid)
     return 1
+async def pasCApitaine(channel):
+    """message à envoyer au personne pas capitaine qui veulent faire des trucs de capitaines"""
+    assert isinstance(channel, discord.Channel)
+
+    await client.send_message(channel, "privilège du chef c.a.d..... pas toi ;-)")
 
 #gestionnaires de la channel d'accueil
 async def addLevel(lvl, member):
@@ -136,7 +141,7 @@ async def waitTimer():
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
     while True:
-        await asyncio.sleep(10)
+        await asyncio.sleep(60)
 
         now = datetime.datetime.now()
 
@@ -271,6 +276,23 @@ async def on_message(message):
                         cCurrent.retirerRaid()
                         await removeCRaid(cCurrent)
                         del cRaids[cCurrent.id]
+                    else:
+                        await pasCApitaine(messageChannel)
+            elif message.content.lower().startswith("!chef"):
+                #variable check
+                try:
+                    assert len(args) == 2
+                    memberId = args[1].replace('<@', '').replace('>', '').replace('!','')
+                    member = next( m for m in server.members if m.id == memberId)
+                except (AssertionError, StopIteration):
+                    await client.send_message(message.channel, rappelCommand("chef"))
+                    return
+
+                if message.author == cCurrent.raid.capitaine:
+                    cCurrent.raid.setCapitaine(member)
+                    await editCRaid(cCurrent)
+                else:
+                    await pasCApitaine(message.channel)
             elif args[0] == "!launch" and len(args) == 2:
                     battleTime = args[1]
                     try:
@@ -416,6 +438,6 @@ async def on_member_join(member):
         await client.send_message(server.owner, "votre server ne comporte pas de sécurrité n'importe qui peut y faire n'importe quoi")
 
     await client.add_roles(member, role)
-    await client.send_message(member, "Pour activer ta préscence sur le forum %s, merci de nous envoyer un screenshot de ton profil sur <@%s>" %(server.name, cAccueil.id))
+    await client.send_message(member, "Pour activer ta préscence sur le forum %s, merci de nous envoyer un screenshot de ton profil sur le salon #accueil du forum" %server.name)
 
 client.run(os.environ['DISCORD_TOKEN'])
