@@ -145,9 +145,11 @@ async def waitTimer():
             toDelete = []
             for cCurrent in client.get_all_channels():
                 if regex.match(cCurrent.name):
+                    print("il y a match")
                     numRaid = getNumChannel(cCurrent.name)
                     cRaidCurrent = cRaids[numRaid]
                     if cRaidCurrent.raid.fin < now:
+                        print ("il faut le detruire c'est le mal")
                         toDelete.append(cRaidCurrent)
 
             for cRaidCurrent in toDelete:
