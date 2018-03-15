@@ -213,7 +213,6 @@ async def on_ready():
 #ajout manuel d'evenement
 @client.event
 async def on_message(message):
-
     #variables externes
     global cookieCompteur
     global cRaidAdd
@@ -230,14 +229,15 @@ async def on_message(message):
     args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
-    #n'import où
-    if message.content.lower() == "!cookie" and message.channel != cRaidAdd:
+    #n'import où si on lui parle
+    if message.content.lower() == str("<@%s>" %client.user.id) and message.channel != cRaidAdd:
+        await client.send_message(message.channel, sendHelp())
+        await client.delete_message(message)
+    elif message.content.lower() == "!cookie" and message.channel != cRaidAdd:
         cookieCompteur +=  1
         await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
         await client.delete_message(message)
-    elif message.content.lower() == "!help":
-        await client.send_message(message.channel, sendHelp())
-        await client.delete_message(message)
+
     #on écoute la channel d'add
     elif message.channel == cRaidAdd:
         if message.content.lower().startswith("!add") and not len(args) < 4:
