@@ -148,6 +148,7 @@ async def waitTimer():
                     numRaid = getNumChannel(cCurrent.name)
                     cRaidCurrent = cRaids[numRaid]
                     if cRaidCurrent.raid.fin < now:
+                        print ("il faut le detruire c'est le mal")
                         toDelete.append(cRaidCurrent)
 
             for cRaidCurrent in toDelete:
