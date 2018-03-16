@@ -417,6 +417,10 @@ async def on_message(message):
             raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
             cRaid = cRaids[ChannelRaid.nb_channel].ajouterRaid(raid)
 
+            if not isUniquePlace(raid.battlePlace, cGyms):
+                removeGym(raid, cGyms)
+                await updateGymList()
+
             await addToListe(cRaid)
             cRaid.pinMsg = await client.send_message(cCom, embed=raid.embed())
             await client.pin_message(cRaid.pinMsg)

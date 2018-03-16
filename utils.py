@@ -210,6 +210,17 @@ def updateGym(raid, gymList):
             break
 
     if not index == -1 : gymList[index] = raid
+def removeGym(raid, gymList):
+    """remove the raid that has the same place as the parameter raid"""
+    assert isinstance(raid, Raid)
+
+    index = -1
+    for key, gym in gymList.items():
+        if gym.battlePlace == raid.battlePlace:
+            index = key
+            break
+
+    if not index == -1: gymList.pop(key)
 
 if __name__=="__main__":
     #debut des test unitaires
