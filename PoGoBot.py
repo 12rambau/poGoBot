@@ -159,6 +159,8 @@ async def freeFreshmen(member):
 # timer toutes les 10s
 async def waitTimer():
 
+    global msgGymHuntr
+
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
     while True:
@@ -181,6 +183,15 @@ async def waitTimer():
             await removeCRaid(cRaidCurrent)
             del cRaids[cId]
 
+        #faire le menage dans les raids de GymHuntr
+        index = []
+        for key, gym in cGyms.items():
+            if gym.fin < now: index.append(key)
+        for key in index:
+            cGyms.pop(key)
+        await updateGymList(msgGymHuntr)
+
+
 #routine demarage
 @client.event
 async def on_ready():
@@ -189,6 +200,7 @@ async def on_ready():
     global cRaidAdd
     global server
     global cAdmin
+    global msgGymHuntr
 
     #recuperer le server
     server = client.get_server(os.environ["DISCORD_SERVER_ID"])
@@ -246,6 +258,7 @@ async def on_message(message):
     global cAccueil
     global server
     global cAdmin
+    global msgGymHuntr
 
     #se debarasser des messages privés et des disabled
     if message.channel.is_private or not isAble(message.author): return
