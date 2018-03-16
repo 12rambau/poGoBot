@@ -32,7 +32,7 @@ async def addToListe(cRaid):
     if not isinstance(cRaid, ChannelRaid): return 0
 
     await client.purge_from(cRaidAdd, check=isRappelCommand)
-    await client.purge_from(cRaidAdd, check=isNotBot)
+    await client.purge_from(cRaidAdd, check=isNotRaid)
     content = str("raid en cour sur <#%s>" %(cRaid.com.id))
     msg = await client.send_message(cRaidAdd, content=content, embed=cRaid.raid.embed())
     cRaid.listMsg = msg
@@ -238,8 +238,50 @@ async def on_message(message):
     args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
+    #n'import où si on lui parle
+    if message.content.lower() == str("<@%s>" %client.user.id):
+        await client.send_message(message.channel, sendHelp())
+        await client.delete_message(message)
+    elif message.content.lower() == "!cookie" :
+        cookieCompteur +=  1
+        await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
+        await client.delete_message(message)
+    elif message.content.lower().startswith("!lvl") and len(args) == 2:
+        #variable check
+        try:
+            lvl = int(args[1])
+            assert isLevel(lvl)
+        except (ValueError, AssertionError):
+            await client.send_message(message.channel, rappelCommand("lvl"))
+            return
+
+        await addLevel(lvl, message.author)
+        await client.delete_message(message)
+    elif message.content.lower().startswith("!team") and len(args) == 2:
+        #variable check
+        team = args[1]
+        try:
+            assert teamName(team)
+        except AssertionError:
+            await client.send_message(message.channel, rappelCommand("team"))
+            return
+
+        await changeTeam(team, message.author)
+        await client.delete_message(message)
+    elif message.content.lower().startswith("!nick"):
+        #variable check
+        try:
+            assert len(args) == 2
+            newNick = args[1]
+        except AssertionError:
+            await client.send_message(message.channel, rappelCommand("nick"))
+            return
+
+        await changeNick(newNick, message.author)
+        await client.delete_message(message)
+
     #écoute des channels de raid
-    if regex.match(message.channel.name):
+    elif regex.match(message.channel.name):
         numRaid = getNumChannel(message.channel.name)
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
@@ -318,49 +360,6 @@ async def on_message(message):
                     cCurrent.raid.faireEclore(pokeName)
                     await editCRaid(cCurrent)
                     await client.delete_message(message)
-
-    #n'import où si on lui parle
-    elif message.channel != cRaidAdd:
-        if message.content.lower() == str("<@%s>" %client.user.id):
-            await client.send_message(message.channel, sendHelp())
-            await client.delete_message(message)
-        elif message.content.lower() == "!cookie" :
-            cookieCompteur +=  1
-            await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
-            await client.delete_message(message)
-        elif message.content.lower().startswith("!lvl") and len(args) == 2:
-            #variable check
-            try:
-                lvl = int(args[1])
-                assert isLevel(lvl)
-            except (ValueError, AssertionError):
-                await client.send_message(message.channel, rappelCommand("lvl"))
-                return
-
-            await addLevel(lvl, message.author)
-            await client.delete_message(message)
-        elif message.content.lower().startswith("!team") and len(args) == 2:
-            #variable check
-            team = args[1]
-            try:
-                assert teamName(team)
-            except AssertionError:
-                await client.send_message(message.channel, rappelCommand("team"))
-                return
-
-            await changeTeam(team, message.author)
-            await client.delete_message(message)
-        elif message.content.lower().startswith("!nick"):
-            #variable check
-            try:
-                assert len(args) == 2
-                newNick = args[1]
-            except AssertionError:
-                await client.send_message(message.channel, rappelCommand("nick"))
-                return
-
-            await changeNick(newNick, message.author)
-            await client.delete_message(message)
 
     #on écoute la channel d'add
     elif message.channel == cRaidAdd:

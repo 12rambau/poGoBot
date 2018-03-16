@@ -10,6 +10,13 @@ def isNotBot(m):
     """prend en entree un discord.on_message
     renvoit 1 si l'auteur n'est pas un bot 0 sinon"""
     return m.author.bot != True
+def isNotRaid(m):
+    """ prend en entre un discord.on_message
+    renvoit 0 si c'est un message qui doit rester dans la console de raid
+    1 sinon"""
+    if m.content.lower() == "liste des raids en cours" or m.content.lower().startswith("raid en cour sur"): return 0
+    return 1
+
 def isRappelCommand(m):
     """ renvoit 1 si c'est un rappel de commande 0 sinon"""
     return m.content.startswith("Comme je suis sympa je te redonne la commande que tu as essayé de taper :")
@@ -172,7 +179,7 @@ def isAble(member):
     for role in member.roles:
         if role.name == "disable": return 0
 
-    return 1 
+    return 1
 
 if __name__=="__main__":
     #debut des test unitaires
