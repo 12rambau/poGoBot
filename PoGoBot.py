@@ -31,7 +31,6 @@ async def addToListe(cRaid):
 
     if not isinstance(cRaid, ChannelRaid): return 0
 
-    await client.purge_from(cRaidAdd, check=isRappelCommand)
     await client.purge_from(cRaidAdd, check=isNotRaid)
     content = str("raid en cour sur <#%s>" %(cRaid.com.id))
     msg = await client.send_message(cRaidAdd, content=content, embed=cRaid.raid.embed())
@@ -387,6 +386,8 @@ async def on_message(message):
             await addToListe(cRaid)
             cRaid.pinMsg = await client.send_message(cCom, embed=raid.embed())
             await client.pin_message(cRaid.pinMsg)
+        elif message.content.lower() == "!purge":
+            await client.purge_from(cRaidAdd, check=isNotRaid)
         elif isNotBot(message) : await client.delete_message(message)
 
 #ajout d'emoji
