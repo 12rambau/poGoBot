@@ -157,6 +157,18 @@ class Raid:
         assert isinstance(member, discord.Member)
 
         self.capitaine = member
+
+    def outText(self):
+        """set an standart one line output for the raid"""
+        message = str("**%s : **" %self.getTitre())
+        message += str("%s " %self.battlePlace)
+        if self.pokeId < 0:
+            message += getTimeStr(self.eclosion, "eclosion")
+        elif self.pokeId > 0:
+            message += getTimeStr(self.fin, "fin")
+        message += "\n"
+        return message
+
 if __name__=="__main__":
     #debut des test unitaires
     pass

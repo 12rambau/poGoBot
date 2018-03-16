@@ -55,12 +55,13 @@ async def removeFromListe(cRaid):
 async def updateGymList(msg):
     """update le message des raids alentours"""
     content = "**Vu sur GymHuntr autour de nous :**\n"
+    embed = 0
     if len(list(cGyms)) == 0:
         content += "pas de raid en vue, c'est visiblement pas l'heure"
     else:
         for gym in cGyms.values():
-            content += gym.outText()
-    await client.edit_message(msg, new_content=content)
+            embed += gym.outText()
+    await client.edit_message(msg, new_content=content, embed=embed if embed else None)
 
 #gestionnaire des Raid channels du forum
 async def removeCRaid(cRaid):
