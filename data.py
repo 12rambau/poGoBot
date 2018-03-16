@@ -405,5 +405,6 @@ commandex = {
     "nick":     "!nick [new_nickname]",
     "help":     "@[le_nom_du_bot]",
     "chef":     "!chef @[user]",
-    "purge":    "!purge"
+    "purge":    "!purge",
+    "free":     "!free @[user]"
     }

@@ -131,8 +131,16 @@ async def changeNick(newNick, member):
         newNick = re.sub(r"^.* \(", str("%s (" %newNick), nick)
 
     await client.change_nickname(member, newNick)
+async def freeFreshmen(member):
+    """remove the disable role of the member if he has it"""
+    assert isinstance(member, discord.Member)
 
+    try:
+        disable = next(r for r in member.roles if r.name == "disable")
+    except StopIteration:
+        return
 
+    await client.remove_roles(member, disable)
 
 # timer toutes les 10s
 async def waitTimer():
@@ -389,6 +397,20 @@ async def on_message(message):
         elif message.content.lower() == "!purge":
             await client.purge_from(cRaidAdd, check=isNotRaid)
         elif isNotBot(message) : await client.delete_message(message)
+
+    elif message.channel == cAccueil:
+        if message.content.lower().startswith("!free") and len(args) == 2:
+            #variable check
+            userId = args[1].replace('<@', '').replace('>', '').replace('!','')
+            try:
+                user = next( m for m in client.get_all_members() if m.id == userId)
+            except StopIteration:
+                await client.send_message(message.channel, rappelCommand('free'))
+                return
+
+            await freeFreshmen(user)
+            await client.delete_message(message)
+
 
 #ajout d'emoji
 @client.event
