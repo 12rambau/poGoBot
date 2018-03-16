@@ -168,27 +168,19 @@ async def waitTimer():
         now = datetime.datetime.now()
 
         #test pour comprendre le bug de suppression des raids
-        try:
-            toDelete = []
-            for cCurrent in client.get_all_channels():
-                if regex.match(cCurrent.name):
-                    print("il y a match")
-                    numRaid = getNumChannel(cCurrent.name)
-                    cRaidCurrent = cRaids[numRaid]
-                    if cRaidCurrent.raid.fin < now:
-                        print ("il faut le detruire c'est le mal")
-                        toDelete.append(cRaidCurrent)
+        toDelete = []
+        for cCurrent in client.get_all_channels():
+            if regex.match(cCurrent.name):
+                numRaid = getNumChannel(cCurrent.name)
+                cRaidCurrent = cRaids[numRaid]
+                if cRaidCurrent.raid.fin < now:
+                    toDelete.append(cRaidCurrent)
 
-            for cRaidCurrent in toDelete:
-                cId = cRaidCurrent.id
-                cRaidCurrent.retirerRaid()
-                await removeCRaid(cRaidCurrent)
-                del cRaids[cId]
-        except: #catch all errors
-            await client.send_message(cAdmin, "j'ai bugé")
-            e = sys.exc_info()[0]
-            await client.send_message(cAdmin, str("erreur : \n%s" %e))
-            continue
+        for cRaidCurrent in toDelete:
+            cId = cRaidCurrent.id
+            cRaidCurrent.retirerRaid()
+            await removeCRaid(cRaidCurrent)
+            del cRaids[cId]
 
 #routine demarage
 @client.event
