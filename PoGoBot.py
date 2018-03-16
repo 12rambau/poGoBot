@@ -31,8 +31,7 @@ async def addToListe(cRaid):
 
     if not isinstance(cRaid, ChannelRaid): return 0
 
-    await client.purge_from(cRaidAdd, check=isRappelCommand)
-    await client.purge_from(cRaidAdd, check=isNotBot)
+    await client.purge_from(cRaidAdd, check=isNotRaid)
     content = str("raid en cour sur <#%s>" %(cRaid.com.id))
     msg = await client.send_message(cRaidAdd, content=content, embed=cRaid.raid.embed())
     cRaid.listMsg = msg
@@ -132,8 +131,16 @@ async def changeNick(newNick, member):
         newNick = re.sub(r"^.* \(", str("%s (" %newNick), nick)
 
     await client.change_nickname(member, newNick)
+async def freeFreshmen(member):
+    """remove the disable role of the member if he has it"""
+    assert isinstance(member, discord.Member)
 
+    try:
+        disable = next(r for r in member.roles if r.name == "disable")
+    except StopIteration:
+        return
 
+    await client.remove_roles(member, disable)
 
 # timer toutes les 10s
 async def waitTimer():
@@ -146,27 +153,19 @@ async def waitTimer():
         now = datetime.datetime.now()
 
         #test pour comprendre le bug de suppression des raids
-        try:
-            toDelete = []
-            for cCurrent in client.get_all_channels():
-                if regex.match(cCurrent.name):
-                    print("il y a match")
-                    numRaid = getNumChannel(cCurrent.name)
-                    cRaidCurrent = cRaids[numRaid]
-                    if cRaidCurrent.raid.fin < now:
-                        print ("il faut le detruire c'est le mal")
-                        toDelete.append(cRaidCurrent)
+        toDelete = []
+        for cCurrent in client.get_all_channels():
+            if regex.match(cCurrent.name):
+                numRaid = getNumChannel(cCurrent.name)
+                cRaidCurrent = cRaids[numRaid]
+                if cRaidCurrent.raid.fin < now:
+                    toDelete.append(cRaidCurrent)
 
-            for cRaidCurrent in toDelete:
-                cId = cRaidCurrent.id
-                cRaidCurrent.retirerRaid()
-                await removeCRaid(cRaidCurrent)
-                del cRaids[cId]
-        except: #catch all errors
-            await client.send_message(cAdmin, "j'ai bugé")
-            e = sys.exc_info()[0]
-            await client.send_message(cAdmin, str("erreur : \n%s" %e))
-            continue
+        for cRaidCurrent in toDelete:
+            cId = cRaidCurrent.id
+            cRaidCurrent.retirerRaid()
+            await removeCRaid(cRaidCurrent)
+            del cRaids[cId]
 
 #routine demarage
 @client.event
@@ -238,8 +237,50 @@ async def on_message(message):
     args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
+    #n'import où si on lui parle
+    if message.content.lower() == str("<@%s>" %client.user.id):
+        await client.send_message(message.channel, sendHelp())
+        await client.delete_message(message)
+    elif message.content.lower() == "!cookie" :
+        cookieCompteur +=  1
+        await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
+        await client.delete_message(message)
+    elif message.content.lower().startswith("!lvl") and len(args) == 2:
+        #variable check
+        try:
+            lvl = int(args[1])
+            assert isLevel(lvl)
+        except (ValueError, AssertionError):
+            await client.send_message(message.channel, rappelCommand("lvl"))
+            return
+
+        await addLevel(lvl, message.author)
+        await client.delete_message(message)
+    elif message.content.lower().startswith("!team") and len(args) == 2:
+        #variable check
+        team = args[1]
+        try:
+            assert teamName(team)
+        except AssertionError:
+            await client.send_message(message.channel, rappelCommand("team"))
+            return
+
+        await changeTeam(team, message.author)
+        await client.delete_message(message)
+    elif message.content.lower().startswith("!nick"):
+        #variable check
+        try:
+            assert len(args) == 2
+            newNick = args[1]
+        except AssertionError:
+            await client.send_message(message.channel, rappelCommand("nick"))
+            return
+
+        await changeNick(newNick, message.author)
+        await client.delete_message(message)
+
     #écoute des channels de raid
-    if regex.match(message.channel.name):
+    elif regex.match(message.channel.name):
         numRaid = getNumChannel(message.channel.name)
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
@@ -319,49 +360,6 @@ async def on_message(message):
                     await editCRaid(cCurrent)
                     await client.delete_message(message)
 
-    #n'import où si on lui parle
-    elif message.channel != cRaidAdd:
-        if message.content.lower() == str("<@%s>" %client.user.id):
-            await client.send_message(message.channel, sendHelp())
-            await client.delete_message(message)
-        elif message.content.lower() == "!cookie" :
-            cookieCompteur +=  1
-            await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
-            await client.delete_message(message)
-        elif message.content.lower().startswith("!lvl") and len(args) == 2:
-            #variable check
-            try:
-                lvl = int(args[1])
-                assert isLevel(lvl)
-            except (ValueError, AssertionError):
-                await client.send_message(message.channel, rappelCommand("lvl"))
-                return
-
-            await addLevel(lvl, message.author)
-            await client.delete_message(message)
-        elif message.content.lower().startswith("!team") and len(args) == 2:
-            #variable check
-            team = args[1]
-            try:
-                assert teamName(team)
-            except AssertionError:
-                await client.send_message(message.channel, rappelCommand("team"))
-                return
-
-            await changeTeam(team, message.author)
-            await client.delete_message(message)
-        elif message.content.lower().startswith("!nick"):
-            #variable check
-            try:
-                assert len(args) == 2
-                newNick = args[1]
-            except AssertionError:
-                await client.send_message(message.channel, rappelCommand("nick"))
-                return
-
-            await changeNick(newNick, message.author)
-            await client.delete_message(message)
-
     #on écoute la channel d'add
     elif message.channel == cRaidAdd:
         if message.content.lower().startswith("!add") and not len(args) < 4:
@@ -388,7 +386,23 @@ async def on_message(message):
             await addToListe(cRaid)
             cRaid.pinMsg = await client.send_message(cCom, embed=raid.embed())
             await client.pin_message(cRaid.pinMsg)
+        elif message.content.lower() == "!purge":
+            await client.purge_from(cRaidAdd, check=isNotRaid)
         elif isNotBot(message) : await client.delete_message(message)
+
+    elif message.channel == cAccueil:
+        if message.content.lower().startswith("!free") and len(args) == 2:
+            #variable check
+            userId = args[1].replace('<@', '').replace('>', '').replace('!','')
+            try:
+                user = next( m for m in client.get_all_members() if m.id == userId)
+            except StopIteration:
+                await client.send_message(message.channel, rappelCommand('free'))
+                return
+
+            await freeFreshmen(user)
+            await client.delete_message(message)
+
 
 #ajout d'emoji
 @client.event
