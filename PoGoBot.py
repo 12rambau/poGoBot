@@ -229,6 +229,7 @@ async def on_ready():
 #ajout manuel d'evenement
 @client.event
 async def on_message(message):
+    print ("channel: %s" %message.channel.name)
     #variables externes
     global cookieCompteur
     global cRaidAdd
@@ -411,6 +412,12 @@ async def on_message(message):
             await freeFreshmen(user)
             await client.delete_message(message)
 
+    elif message.channel.name == "gymhuntr":
+        print ("nom : %s" %message.author.name)
+        for embed in message.embeds:
+            for field in embed.values():
+                #print("name: %s" %field.name)
+                print("value: %s" %field)
 
 #ajout d'emoji
 @client.event
