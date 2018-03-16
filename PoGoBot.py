@@ -31,8 +31,7 @@ async def addToListe(cRaid):
 
     if not isinstance(cRaid, ChannelRaid): return 0
 
-    await client.purge_from(cRaidAdd, check=isRappelCommand)
-    await client.purge_from(cRaidAdd, check=isNotBot)
+    await client.purge_from(cRaidAdd, check=isNotRaid)
     content = str("raid en cour sur <#%s>" %(cRaid.com.id))
     msg = await client.send_message(cRaidAdd, content=content, embed=cRaid.raid.embed())
     cRaid.listMsg = msg
@@ -71,6 +70,11 @@ async def editCRaid(cRaid):
     await client.edit_channel(cRaid.com, name=newName)
     await editListe(cRaid)
     return 1
+async def pasCApitaine(channel):
+    """message à envoyer au personne pas capitaine qui veulent faire des trucs de capitaines"""
+    assert isinstance(channel, discord.Channel)
+
+    await client.send_message(channel, "privilège du chef c.a.d..... pas toi ;-)")
 
 #gestionnaires de la channel d'accueil
 async def addLevel(lvl, member):
@@ -127,7 +131,16 @@ async def changeNick(newNick, member):
         newNick = re.sub(r"^.* \(", str("%s (" %newNick), nick)
 
     await client.change_nickname(member, newNick)
+async def freeFreshmen(member):
+    """remove the disable role of the member if he has it"""
+    assert isinstance(member, discord.Member)
 
+    try:
+        disable = next(r for r in member.roles if r.name == "disable")
+    except StopIteration:
+        return
+
+    await client.remove_roles(member, disable)
 
 # timer toutes les 10s
 async def waitTimer():
@@ -135,30 +148,24 @@ async def waitTimer():
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
     while True:
-        await asyncio.sleep(10)
+        await asyncio.sleep(60)
 
         now = datetime.datetime.now()
 
         #test pour comprendre le bug de suppression des raids
-        try:
-            toDelete = []
-            for cCurrent in client.get_all_channels():
-                if regex.match(cCurrent.name):
-                    numRaid = getNumChannel(cCurrent.name)
-                    cRaidCurrent = cRaids[numRaid]
-                    if cRaidCurrent.raid.fin < now:
-                        toDelete.append(cRaidCurrent)
+        toDelete = []
+        for cCurrent in client.get_all_channels():
+            if regex.match(cCurrent.name):
+                numRaid = getNumChannel(cCurrent.name)
+                cRaidCurrent = cRaids[numRaid]
+                if cRaidCurrent.raid.fin < now:
+                    toDelete.append(cRaidCurrent)
 
-            for cRaidCurrent in toDelete:
-                cId = cRaidCurrent.id
-                cRaidCurrent.retirerRaid()
-                await removeCRaid(cRaidCurrent)
-                del cRaids[cId]
-        except: #catch all errors
-            await client.send_message(cAdmin, "j'ai bugé")
-            e = sys.exc_info()[0]
-            await client.send_message(cAdmin, str("erreur : \n%s" %e))
-            continue
+        for cRaidCurrent in toDelete:
+            cId = cRaidCurrent.id
+            cRaidCurrent.retirerRaid()
+            await removeCRaid(cRaidCurrent)
+            del cRaids[cId]
 
 #routine demarage
 @client.event
@@ -196,16 +203,17 @@ async def on_ready():
     print("Bot is ready and back online !")
 
     #changer les couleurs des utilisateurs en attente
-    for member in client.get_all_members():
+    for member in server.members:
         for role in member.roles:
             if role.name.startswith("almost_"):
+                oldRole = role
                 team = role.name.replace ("almost_", "")
                 newRole = next(r for r in server.roles if r.name == team)
-                await client.remove_roles(member, role)
+                await client.remove_roles(member, oldRole)
                 await client.add_roles(member, newRole)
 
     #on lance le garbage collector
-        await waitTimer()
+    await waitTimer()
 
     #si on atteint cet endroit c'est que le garbage collector a craché
     print ('bug')
@@ -222,21 +230,135 @@ async def on_message(message):
     global server
     global cAdmin
 
-    #se debarasser des messages privés
-    if message.channel.is_private: return
+    #se debarasser des messages privés et des disabled
+    if message.channel.is_private or not isAble(message.author): return
 
     #variables internes
     args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
     #n'import où si on lui parle
-    if message.content.lower() == str("<@%s>" %client.user.id) and message.channel != cRaidAdd:
+    if message.content.lower() == str("<@%s>" %client.user.id):
         await client.send_message(message.channel, sendHelp())
         await client.delete_message(message)
-    elif message.content.lower() == "!cookie" and message.channel != cRaidAdd:
+    elif message.content.lower() == "!cookie" :
         cookieCompteur +=  1
         await client.send_message(message.channel, "%i :cookie:" %(cookieCompteur) )
         await client.delete_message(message)
+    elif message.content.lower().startswith("!lvl") and len(args) == 2:
+        #variable check
+        try:
+            lvl = int(args[1])
+            assert isLevel(lvl)
+        except (ValueError, AssertionError):
+            await client.send_message(message.channel, rappelCommand("lvl"))
+            return
+
+        await addLevel(lvl, message.author)
+        await client.delete_message(message)
+    elif message.content.lower().startswith("!team") and len(args) == 2:
+        #variable check
+        team = args[1]
+        try:
+            assert teamName(team)
+        except AssertionError:
+            await client.send_message(message.channel, rappelCommand("team"))
+            return
+
+        await changeTeam(team, message.author)
+        await client.delete_message(message)
+    elif message.content.lower().startswith("!nick"):
+        #variable check
+        try:
+            assert len(args) == 2
+            newNick = args[1]
+        except AssertionError:
+            await client.send_message(message.channel, rappelCommand("nick"))
+            return
+
+        await changeNick(newNick, message.author)
+        await client.delete_message(message)
+
+    #écoute des channels de raid
+    elif regex.match(message.channel.name):
+        numRaid = getNumChannel(message.channel.name)
+        cCurrent = cRaids[numRaid]
+        if cCurrent.isRaid():
+            if args[0].lower() == "!in" and len(args) == 2:
+                    userId = args[1].replace('<@', '').replace('>', '').replace('!','')
+                    try:
+                        user = next( m for m in client.get_all_members() if m.id == userId)
+                    except StopIteration:
+                        await client.send_message(message.channel, rappelCommand("in"))
+                        return
+
+                    cCurrent.raid.ajouterParticipant(user)
+                    await editCRaid(cCurrent)
+            elif args[0].lower() == "!out" and len(args) == 2:
+                    userId = args[1].replace('<@', '').replace('>', '').replace('!','')
+                    try:
+                        user = next( m for m in client.get_all_members() if m.id == userId)
+                    except StopIteration:
+                        await client.send_message(message.channel, rappelCommand("out"))
+                        return
+
+                    cCurrent.raid.retirerParticipant(user)
+                    await editCRaid(cCurrent)
+            elif message.content.lower() == "!in":
+                    cCurrent.raid.ajouterParticipant(message.author)
+                    await editCRaid(cCurrent)
+                    await client.delete_message(message)
+            elif message.content.lower() == "!out":
+                    cCurrent.raid.retirerParticipant(message.author)
+                    await editCRaid(cCurrent)
+                    await client.delete_message(message)
+            elif message.content.lower() == '!abort':
+                    if message.author == cCurrent.raid.capitaine:
+                        cCurrent.retirerRaid()
+                        await removeCRaid(cCurrent)
+                        del cRaids[cCurrent.id]
+                    else:
+                        await pasCApitaine(messageChannel)
+            elif message.content.lower().startswith("!chef"):
+                #variable check
+                try:
+                    assert len(args) == 2
+                    memberId = args[1].replace('<@', '').replace('>', '').replace('!','')
+                    member = next( m for m in server.members if m.id == memberId)
+                except (AssertionError, StopIteration):
+                    await client.send_message(message.channel, rappelCommand("chef"))
+                    return
+
+                if message.author == cCurrent.raid.capitaine:
+                    cCurrent.raid.setCapitaine(member)
+                    await editCRaid(cCurrent)
+                else:
+                    await pasCApitaine(message.channel)
+            elif args[0] == "!launch" and len(args) == 2:
+                    battleTime = args[1]
+                    try:
+                        assert isHour(battleTime)
+                        battleTime = convertTime(battleTime)
+                        assert isFuture(battleTime)
+                        assert isPast(battleTime, cCurrent.raid.fin)
+                    except AssertionError:
+                        await client.send_message(message.channel, rappelCommand("launch"))
+                        return
+
+                    cCurrent.raid.choisirLaunch(battleTime)
+                    await editCRaid(cCurrent)
+                    await client.delete_message(message)
+            elif args[0].lower() == "!edit" and len(args) == 2:
+                    pokeName = unidecode.unidecode(u"%s" %(args[1]))
+                    try:
+                        assert isPokemon(pokeName)
+                    except AssertionError:
+                        await client.send_message(message.channel, rappelCommand("edit"))
+                        return
+
+                    cCurrent.raid.faireEclore(pokeName)
+                    await editCRaid(cCurrent)
+                    await client.delete_message(message)
 
     #on écoute la channel d'add
     elif message.channel == cRaidAdd:
@@ -264,105 +386,23 @@ async def on_message(message):
             await addToListe(cRaid)
             cRaid.pinMsg = await client.send_message(cCom, embed=raid.embed())
             await client.pin_message(cRaid.pinMsg)
+        elif message.content.lower() == "!purge":
+            await client.purge_from(cRaidAdd, check=isNotRaid)
         elif isNotBot(message) : await client.delete_message(message)
-    #on écoute la channel d'accueil
+
     elif message.channel == cAccueil:
-        if message.content.lower().startswith("!lvl") and len(args) == 2:
+        if message.content.lower().startswith("!free") and len(args) == 2:
             #variable check
+            userId = args[1].replace('<@', '').replace('>', '').replace('!','')
             try:
-                lvl = int(args[1])
-                assert isLevel(lvl)
-            except (ValueError, AssertionError):
-                await client.send_message(message.channel, rappelCommand("lvl"))
+                user = next( m for m in client.get_all_members() if m.id == userId)
+            except StopIteration:
+                await client.send_message(message.channel, rappelCommand('free'))
                 return
 
-            await addLevel(lvl, message.author)
+            await freeFreshmen(user)
             await client.delete_message(message)
-        elif message.content.lower().startswith("!team") and len(args) == 2:
-            #variable check
-            team = args[1]
-            try:
-                assert teamName(team)
-            except AssertionError:
-                await client.send_message(message.channel, rappelCommand("team"))
-                return
 
-            await changeTeam(team, message.author)
-            await client.delete_message(message)
-        elif message.content.lower().startswith("!nick"):
-            #variable check
-            try:
-                assert len(args) == 2
-                newNick = args[1]
-            except AssertionError:
-                await client.send_message(message.channel, rappelCommand("nick"))
-                return
-
-            await changeNick(newNick, message.author)
-            await client.delete_message(message)
-    #écoute des channels de raid
-    elif regex.match(message.channel.name):
-        numRaid = getNumChannel(message.channel.name)
-        cCurrent = cRaids[numRaid]
-        if cCurrent.isRaid():
-            if args[0].lower() == "!in" and len(args) == 2:
-                userId = args[1].replace('<@', '').replace('>', '').replace('!','')
-                try:
-                    user = next( m for m in client.get_all_members() if m.id == userId)
-                except StopIteration:
-                    await client.send_message(message.channel, rappelCommand("in"))
-                    return
-
-                cCurrent.raid.ajouterParticipant(user)
-                await editCRaid(cCurrent)
-            elif args[0].lower() == "!out" and len(args) == 2:
-                userId = args[1].replace('<@', '').replace('>', '').replace('!','')
-                try:
-                    user = next( m for m in client.get_all_members() if m.id == userId)
-                except StopIteration:
-                    await client.send_message(message.channel, rappelCommand("out"))
-                    return
-
-                cCurrent.raid.retirerParticipant(user)
-                await editCRaid(cCurrent)
-            elif message.content.lower() == "!in":
-                cCurrent.raid.ajouterParticipant(message.author)
-                await editCRaid(cCurrent)
-                await client.delete_message(message)
-            elif message.content.lower() == "!out":
-                cCurrent.raid.retirerParticipant(message.author)
-                await editCRaid(cCurrent)
-                await client.delete_message(message)
-            elif message.content.lower() == '!abort':
-                if message.author == cCurrent.raid.capitaine:
-                    cCurrent.retirerRaid()
-                    await removeCRaid(cCurrent)
-                    del cRaids[cCurrent.id]
-            elif args[0] == "!launch" and len(args) == 2:
-                battleTime = args[1]
-                try:
-                    assert isHour(battleTime)
-                    battleTime = convertTime(battleTime)
-                    assert isFuture(battleTime)
-                    assert isPast(battleTime, cCurrent.raid.fin)
-                except AssertionError:
-                    await client.send_message(message.channel, rappelCommand("launch"))
-                    return
-
-                cCurrent.raid.choisirLaunch(battleTime)
-                await editCRaid(cCurrent)
-                await client.delete_message(message)
-            elif args[0].lower() == "!edit" and len(args) == 2:
-                pokeName = unidecode.unidecode(u"%s" %(args[1]))
-                try:
-                    assert isPokemon(pokeName)
-                except AssertionError:
-                    await client.send_message(message.channel, rappelCommand("edit"))
-                    return
-
-                cCurrent.raid.faireEclore(pokeName)
-                await editCRaid(cCurrent)
-                await client.delete_message(message)
 
 #ajout d'emoji
 @client.event
@@ -389,12 +429,29 @@ async def on_reaction_remove(reaction, user):
                 await editCRaid(cCurrent)
 
 @client.event
-async def on_member_join(member):
-    intro = "bite"
+async def on_member_update(before, after):
+    try:
+        assert setAbled(before, after)
+    except AssertionError:
+        return
+
+    intro = ""
     try:
         intro = next(m for m in await client.pins_from(cAdmin) if m.content.startswith("!intro"))
     except StopIteration:
-        await client.send_message(member, "va reveiller ton admin et dis lui qu'il a oublié le message d'accueil. Au fait BONJOUR !!")
-    await client.send_message(member, intro.content.replace("!intro", ""))
+        await client.send_message(after, "va reveiller ton admin et dis lui qu'il a oublié le message d'accueil. Au fait BONJOUR !!")
+    await client.send_message(after, intro.content.replace("!intro", ""))
+
+
+
+@client.event
+async def on_member_join(member):
+    try:
+        role = next(r for r in server.roles if r.name == "disable")
+    except StopIteration:
+        await client.send_message(server.owner, "votre server ne comporte pas de sécurrité n'importe qui peut y faire n'importe quoi")
+
+    await client.add_roles(member, role)
+    await client.send_message(member, "Pour activer ta préscence sur le forum %s, merci de nous envoyer un screenshot de ton profil sur le salon #accueil du forum" %server.name)
 
 client.run(os.environ['DISCORD_TOKEN'])

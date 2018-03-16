@@ -403,4 +403,8 @@ commandex = {
     "in":       "!in OR !in @[user]",
     "out":      "!out OR !out @[user]",
     "nick":     "!nick [new_nickname]",
-    "help":     "@[le_nom_du_bot]"}
+    "help":     "@[le_nom_du_bot]",
+    "chef":     "!chef @[user]",
+    "purge":    "!purge",
+    "free":     "!free @[user]"
+    }

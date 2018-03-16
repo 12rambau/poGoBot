@@ -153,6 +153,10 @@ class Raid:
 
         return listParticipant
 
+    def setCapitaine(self, member):
+        assert isinstance(member, discord.Member)
+
+        self.capitaine = member
 if __name__=="__main__":
     #debut des test unitaires
     pass

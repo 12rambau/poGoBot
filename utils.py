@@ -3,12 +3,20 @@ from utils import *
 from data import *
 import re
 import unidecode
+import discord
 
 #function hors loop
 def isNotBot(m):
     """prend en entree un discord.on_message
     renvoit 1 si l'auteur n'est pas un bot 0 sinon"""
     return m.author.bot != True
+def isNotRaid(m):
+    """ prend en entre un discord.on_message
+    renvoit 0 si c'est un message qui doit rester dans la console de raid
+    1 sinon"""
+    if m.content.lower() == "liste des raids en cours" or m.content.lower().startswith("raid en cour sur"): return 0
+    return 1
+
 def isRappelCommand(m):
     """ renvoit 1 si c'est un rappel de commande 0 sinon"""
     return m.content.startswith("Comme je suis sympa je te redonne la commande que tu as essayé de taper :")
@@ -152,6 +160,26 @@ def sendHelp():
 
     message += "\nPour des renseignements plus prescis rend toi directement sur la doc en ligne :\n <https://github.com/12rambau/poGoBot/wiki>"
     return message
+def setAbled(before, after):
+    """ renvoit 1 si on vient de retirer disable au membre"""
+    assert isinstance(before, discord.Member)
+    assert isinstance(after, discord.Member)
+
+    for bRole in before.roles:
+        if bRole.name == "disable":
+            for aRole in after.roles:
+                if aRole == "disable":
+                    return 0
+            return 1
+    return 0
+def isAble(member):
+    """renvoit 1 si le user est able 0 sinon"""
+    assert isinstance(member, discord.Member)
+
+    for role in member.roles:
+        if role.name == "disable": return 0
+
+    return 1
 
 if __name__=="__main__":
     #debut des test unitaires
