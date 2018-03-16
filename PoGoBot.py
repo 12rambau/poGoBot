@@ -54,7 +54,6 @@ async def removeFromListe(cRaid):
 #gestionnaires de la liste de GymHuntr
 async def updateGymList(msg):
     """update le message des raids alentours"""
-    print("coucou c'est moi")
     content = "**Vu sur GymHuntr autour de nous :**\n"
     if len(list(cGyms)) == 0:
         content += "pas de raid en vue, c'est visiblement pas l'heure"
@@ -224,7 +223,7 @@ async def on_ready():
     await client.send_message(cRaidAdd, "je vais pas rester")
 
     #ecrire le message initiale des raid
-    await client.send_message(cRaidAdd, "Liste des raids en cours")
+    await client.send_message(cRaidAdd, "**Liste des raids en cours**")
 
     print("Bot is ready and back online !")
 

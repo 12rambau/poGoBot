@@ -14,7 +14,7 @@ def isNotRaid(m):
     """ prend en entre un discord.on_message
     renvoit 0 si c'est un message qui doit rester dans la console de raid
     1 sinon"""
-    if m.content.lower() == "liste des raids en cours" or m.content.lower().startswith("raid en cour sur"): return 0
+    if m.content.lower() == "**liste des raids en cours**" or m.content.startswith("**Vu sur GymHuntr autour de nous :**") or m.content.lower().startswith("raid en cour sur"): return 0
     return 1
 def isRappelCommand(m):
     """ renvoit 1 si c'est un rappel de commande 0 sinon"""
