@@ -17,11 +17,14 @@ client = commands.Bot(command_prefix = "")
 
 cookieCompteur = 0
 cRaids = {}
+cGyms = {}
 server = 0
 
 cAccueil = 0
 cRaidAdd = 0
 cAdmin = 0
+
+msgGymHuntr = 0
 
 #gesionnaire de la liste de RAid
 async def addToListe(cRaid):
@@ -47,6 +50,18 @@ async def removeFromListe(cRaid):
 
     await client.delete_message(cRaid.listMsg)
     return 0
+
+#gestionnaires de la liste de GymHuntr
+async def updateGymList(msg):
+    """update le message des raids alentours"""
+    print("coucou c'est moi")
+    content = "**Vu sur GymHuntr autour de nous :**\n"
+    if len(list(cGyms)) == 0:
+        content += "pas de raid en vue, c'est visiblement pas l'heure"
+    else:
+        for gym in cGyms.values():
+            content += gym.outText()
+    await client.edit_message(msg, new_content=content)
 
 #gestionnaire des Raid channels du forum
 async def removeCRaid(cRaid):
@@ -205,6 +220,9 @@ async def on_ready():
     for cId in cToDelete:
         await client.delete_channel(client.get_channel(cId))
 
+    #ecrire le message de GymHuntr
+    await client.send_message(cRaidAdd, "je vais pas rester")
+
     #ecrire le message initiale des raid
     await client.send_message(cRaidAdd, "Liste des raids en cours")
 
@@ -229,7 +247,6 @@ async def on_ready():
 #ajout manuel d'evenement
 @client.event
 async def on_message(message):
-    print ("channel: %s" %message.channel.name)
     #variables externes
     global cookieCompteur
     global cRaidAdd
@@ -371,6 +388,9 @@ async def on_message(message):
 
     #on écoute la channel d'add
     elif message.channel == cRaidAdd:
+        if message.content.lower() == "je vais pas rester":
+            msgGymHuntr = message
+            await updateGymList(msgGymHuntr)
         if message.content.lower().startswith("!add") and not len(args) < 4:
             pokeName = unidecode.unidecode(u"%s" %(args[1]))
             battleTime = args[2]
@@ -413,11 +433,24 @@ async def on_message(message):
             await client.delete_message(message)
 
     elif message.channel.name == "gymhuntr":
-        print ("nom : %s" %message.author.name)
-        for embed in message.embeds:
-            for field in embed.values():
-                #print("name: %s" %field.name)
-                print("value: %s" %field)
+        args = message.embeds[0]["descripsion"].lower().split("\n")
+        pokeName = args[1].lower()
+        battleTime = lireHeure(args[3])
+        battlePlace = lireLieu(args[0])
+
+        #variable check
+        try:
+            assert isUniquePlace(battlePlace, cRaids)
+        except AssertionError:
+            return
+
+        raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
+        if isUniquePlace(raid.battlePlace, cGyms):
+            cGyms.append(raid)
+        else:
+            updateGym(raid, cGym)
+
+        await updateGymList()
 
 #ajout d'emoji
 @client.event

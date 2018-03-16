@@ -16,7 +16,6 @@ def isNotRaid(m):
     1 sinon"""
     if m.content.lower() == "liste des raids en cours" or m.content.lower().startswith("raid en cour sur"): return 0
     return 1
-
 def isRappelCommand(m):
     """ renvoit 1 si c'est un rappel de commande 0 sinon"""
     return m.content.startswith("Comme je suis sympa je te redonne la commande que tu as essayé de taper :")
@@ -82,13 +81,18 @@ def teamName(team):
         if team == trad["fr"]: return teamName
 
     return 0
-def isUniquePlace(battlePlace, cRaids):
-    """retourne 1 si l'endroit n'a jamais été utilisé 0 sinon"""
-    if not isinstance(battlePlace, str): return 0
-    for cCurrent in cRaids.values():
-        if battlePlace == cCurrent.raid.battlePlace: return 0
+def isUniquePlace(battlePlace, RaidsList):
+    """retourne 1 si l'endroit n'est pas utilisé 0 sinon"""
+    assert isinstance(battlePlace, str)
 
-    return 1
+    libre = 1
+    for raidElement in RaidsList.values():
+        if isinstance(raidElement, Channel):
+            if battlePlace == raidElement.raid.battlePlace: libre = 0
+        if isinstance(raidElement, Raid):
+            if battlePlace == raidElement.battlePlace: libre = 0
+
+    return libre
 def isOeufName(pokeName):
     """retourne 1 si c'est un nom d'oeuf, O sinon"""
     if isinstance(pokeName, str):
@@ -180,6 +184,32 @@ def isAble(member):
         if role.name == "disable": return 0
 
     return 1
+def lireLieu(lieu):
+    """renvoit le lieu issu de GymHuntr formaté comme il se doit"""
+    assert isinstance(lieu, str)
+
+    return lieu.lower().replace(".**", "").replace("**", "")
+def lireHeure(temps):
+    """retourne le temps donné par GymHuntr au format attendu par Raid"""
+    assert isinstance(temps, str)
+
+    temps = temps.replace("*Raid Ending: ", "").replace("*", "")
+    temps = temps.split(" ")
+    temps = datetime.timedelta(hours= temps[0], minutes=temps[2], seconds=temps[5])
+    temps = datetime.datetime.now() + temps
+
+    return temps
+def updateGym(raid, gymList):
+    """replace the old gym informations with the updated one"""
+    assert isinstance(raid, Raid)
+
+    index = -1
+    for key, gym in gymList.items():
+        if gym.battlePlace == raid.battlePlace:
+            index = key
+            break
+
+    if not index == -1 : gymList[index] = raid
 
 if __name__=="__main__":
     #debut des test unitaires
