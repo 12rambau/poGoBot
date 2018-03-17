@@ -51,9 +51,9 @@ async def removeFromListe(cRaid):
 def readPinMessage(message):
     """retirer les informations du raid depuis l'embed"""
     assert isinstance(message, discord.Message)
-
     embed = next (e for e in message.embeds)
 
+    print (embed)
     pokeName = embed["title"]
 
     battlePlace = embed["fields"][0]["name"]
@@ -65,7 +65,15 @@ def readPinMessage(message):
     temps = args[2][-16:]
     temps = datetime.datetime.strptime(temps, "%d/%m/%Y %H:%M")
 
-    return (pokeName, chef, temps, battlePlace)
+    nbParticipant = int(args[3].split(" ")[0])
+    participants = []
+    if nbParticipant > 0:
+        footer = embed["footer"]["text"].split("@")
+        footer.pop(0)
+        for name in footer:
+            participants.append(next(m for m in server.members if (m.name == name or m.nick == name)))
+
+    return (pokeName, chef, temps, battlePlace, participants)
 
 #gestionnaire des Raid channels du forum
 async def removeCRaid(cRaid):
@@ -222,11 +230,12 @@ async def on_ready():
     for cCurrent in server.channels:
         if regexEx.match(cCurrent.name):
             pinMsg = next(m for m in await client.pins_from(cCurrent))
-            (pokeName, chef, battleTime, battlePlace) = readPinMessage(pinMsg)
+            (pokeName, chef, battleTime, battlePlace, participants) = readPinMessage(pinMsg)
 
             raid = Raid(1,0,pokeName,chef, battleTime, battlePlace)
-            cRaidEx[ChannelRaid.nb_channel] = ChannelRaid(cCurrent)
             raid.lancement = battleTime
+            raid.participants = participants
+            cRaidEx[ChannelRaid.nb_channel] = ChannelRaid(cCurrent)
             cRaid = cRaidEx[ChannelRaid.nb_channel].ajouterRaid(raid)
             cRaid.pinMsg = pinMsg
             await addToListe(cRaid)
