@@ -14,3 +14,4 @@ Nous ne bénéficions pour l'instant pas de colaborateur étrangés. Si un devel
 - [ ] gestion des raid ex
 - [ ] ajouter des stats sur les raids
 - [ ] lire les entrées de gymhuntrBot
+- [ ] revoir le rangement du code
