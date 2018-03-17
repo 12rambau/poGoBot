@@ -406,5 +406,6 @@ commandex = {
     "help":     "@[le_nom_du_bot]",
     "chef":     "!chef @[user]",
     "purge":    "!purge",
-    "free":     "!free @[user]"
+    "free":     "!free @[user]",
+    "add":      "!add ex [datetime_eclosion] [lieu]",
     }
