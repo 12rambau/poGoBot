@@ -17,10 +17,11 @@ class Raid:
 
     TEMPS_PRESENCE = datetime.timedelta(minutes=45)
 
-    def __init__(self, id, pokeName, capitaine, temps, battlePlace):
+    def __init__(self, ex, id, pokeName, capitaine, temps, battlePlace):
         """constructeur parametré permettant de creer un Raid avec tous les paramettres"""
 
         #pour l'instant je fais confiance à mes utilisateurs
+        self.ex = ex
         self.id = id
         self.pokeId = lirePokeName(pokeName)
         self.participants = []
@@ -40,11 +41,11 @@ class Raid:
         embed.set_thumbnail(url=self.getUrl())
 
         field = self.getCapitaine()
-        field += getTimeStr(self.lancement, "lancement")
+        field += getTimeStr(self.lancement, "lancement", self.ex)
         if self.pokeId < 0:
-            field += getTimeStr(self.eclosion, "eclosion")
+            field += getTimeStr(self.eclosion, "eclosion", self.ex)
         else:
-            field += getTimeStr(self.fin, "fin")
+            field += getTimeStr(self.fin, "fin", self.ex)
         field += str("%i participants \n" %(len(self.participants)))
         embed.add_field(name=self.battlePlace.lower(), value=field)
 
@@ -130,16 +131,17 @@ class Raid:
     def getTitre(self):
         if self.pokeId > 0:
             titre = lirePokeId(self.pokeId).upper()
-        else:
-            titre = str("Raid LvL%i" %(-self.pokeId))
-
+        elif self.pokeId >-6:
+            titre = str("T%i" %(-self.pokeId))
+        elif self.ex:
+            titre = "Tex"
         return titre
 
     def getCapitaine(self):
         if self.capitaine.nick:
-            capitaine = str("chef: @%s \n" %(self.capitaine.nick))
+            capitaine = str("chef: @%s\n" %(self.capitaine.nick))
         else:
-            capitaine = str("chef: @%s \n" %(self.capitaine.name))
+            capitaine = str("chef: @%s\n" %(self.capitaine.name))
 
         return capitaine
 
@@ -157,6 +159,14 @@ class Raid:
         assert isinstance(member, discord.Member)
 
         self.capitaine = member
+
+    def getRaidName(self):
+        """return the name to give to the channel used by the raid"""
+        name = str("%s_" %self.id)
+        name += str("ex_") if self.ex else ""
+        name += lirePokeId(self.pokeId)
+        name += str("-%i" %len(self.participants))
+        return name
 if __name__=="__main__":
     #debut des test unitaires
     pass
