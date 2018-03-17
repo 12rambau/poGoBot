@@ -17,6 +17,7 @@ client = commands.Bot(command_prefix = "")
 
 cookieCompteur = 0
 cRaids = {}
+cRaidEx = {}
 server = 0
 
 cAccueil = 0
@@ -236,6 +237,7 @@ async def on_message(message):
     #variables internes
     args = message.content.lower().split(" ")
     regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
+    regexEx = re.compile(r"[0-9]*_ex_[a-z0-9]*-[0-9]*") #nom des channels de raid
 
     #n'import où si on lui parle
     if message.content.lower() == str("<@%s>" %client.user.id):
@@ -279,8 +281,75 @@ async def on_message(message):
         await changeNick(newNick, message.author)
         await client.delete_message(message)
 
+    #ecouter les channels de raid Ex
+    elif regexEx.match(message.channel.name):
+            numRaid = getNumChannel(message.channel.name)
+            cCurrent = cRaidEx[numRaid]
+            if cCurrent.isRaid():
+                if args[0].lower() == "!in" and len(args) == 2:
+                        userId = args[1].replace('<@', '').replace('>', '').replace('!','')
+                        try:
+                            user = next( m for m in client.get_all_members() if m.id == userId)
+                        except StopIteration:
+                            await client.send_message(message.channel, rappelCommand("in"))
+                            return
+
+                        cCurrent.raid.ajouterParticipant(user)
+                        await editCRaid(cCurrent)
+                elif args[0].lower() == "!out" and len(args) == 2:
+                        userId = args[1].replace('<@', '').replace('>', '').replace('!','')
+                        try:
+                            user = next( m for m in client.get_all_members() if m.id == userId)
+                        except StopIteration:
+                            await client.send_message(message.channel, rappelCommand("out"))
+                            return
+
+                        cCurrent.raid.retirerParticipant(user)
+                        await editCRaid(cCurrent)
+                elif message.content.lower() == "!in":
+                        cCurrent.raid.ajouterParticipant(message.author)
+                        await editCRaid(cCurrent)
+                        await client.delete_message(message)
+                elif message.content.lower() == "!out":
+                        cCurrent.raid.retirerParticipant(message.author)
+                        await editCRaid(cCurrent)
+                        await client.delete_message(message)
+                elif message.content.lower() == '!abort':
+                        if message.author == cCurrent.raid.capitaine:
+                            cCurrent.retirerRaid()
+                            await removeCRaid(cCurrent)
+                            del cRaidEx[cCurrent.id]
+                        else:
+                            await pasCApitaine(messageChannel)
+                elif message.content.lower().startswith("!chef"):
+                    #variable check
+                    try:
+                        assert len(args) == 2
+                        memberId = args[1].replace('<@', '').replace('>', '').replace('!','')
+                        member = next( m for m in server.members if m.id == memberId)
+                    except (AssertionError, StopIteration):
+                        await client.send_message(message.channel, rappelCommand("chef"))
+                        return
+
+                    if message.author == cCurrent.raid.capitaine:
+                        cCurrent.raid.setCapitaine(member)
+                        await editCRaid(cCurrent)
+                    else:
+                        await pasCApitaine(message.channel)
+                elif args[0].lower() == "!edit" and len(args) == 2:
+                        pokeName = unidecode.unidecode(u"%s" %(args[1]))
+                        try:
+                            assert isPokemon(pokeName)
+                        except AssertionError:
+                            await client.send_message(message.channel, rappelCommand("edit"))
+                            return
+
+                        cCurrent.raid.pokeId = lirePokeName(pokeName)
+                        await editCRaid(cCurrent)
+                        await client.delete_message(message)
     #écoute des channels de raid
     elif regex.match(message.channel.name):
+        print ("bite")
         numRaid = getNumChannel(message.channel.name)
         cCurrent = cRaids[numRaid]
         if cCurrent.isRaid():
@@ -362,7 +431,29 @@ async def on_message(message):
 
     #on écoute la channel d'add
     elif message.channel == cRaidAdd:
-        if message.content.lower().startswith("!add") and not len(args) < 4:
+        if message.content.lower().startswith("!add ex") and not len(args) < 5:
+            pokeName = "tex"
+            battleTime = str("%s %s" %(args[2], args[3]))
+            battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[4:])))
+
+            #variable check
+            try:
+                battleTime = datetime.datetime.strptime(battleTime, "%d/%m/%Y %H:%M")
+                assert isFuture(battleTime)
+            except (AssertionError, ValueError):
+                await client.send_message(message.channel, rappelCommand("add ex"))
+                return
+
+            cCom = await client.create_channel(server, str("%i_ex_%s-0" %(ChannelRaid.nb_channel+1,pokeName)))
+            cRaidEx[ChannelRaid.nb_channel] = ChannelRaid(cCom)
+            raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
+            raid.lancement = battleTime
+            cRaid = cRaidEx[ChannelRaid.nb_channel].ajouterRaid(raid)
+
+            await addToListe(cRaid)
+            cRaid.pinMsg = await client.send_message(cCom, embed=raid.embed())
+            await client.pin_message(cRaid.pinMsg)
+        elif message.content.lower().startswith("!add") and not len(args) < 4:
             pokeName = unidecode.unidecode(u"%s" %(args[1]))
             battleTime = args[2]
             battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[3:])))

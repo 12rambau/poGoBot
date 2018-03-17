@@ -59,6 +59,9 @@ def lirePokeName(pokeName):
             num = int(num)
             if num < 6 and num > 0: return -num
 
+    if pokeName == "tex":
+        return -6
+
     for ip, pokemon in enumerate(pokedex):
         for nom in pokemon.values():
             if nom == str(pokeName).lower():

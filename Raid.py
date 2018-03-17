@@ -118,7 +118,7 @@ class Raid:
     def getUrl(self):
         if self.pokeId > 0:
             url = str("https://pokemon.gameinfo.io/images/pokemon/%i.png" %(self.pokeId))
-        elif self.pokeId == -5:
+        elif self.pokeId == -5 or self.pokeId == -6:
             url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Legendary-Egg.png"
         elif self.pokeId == -4 or self.pokeId == -3:
             url = "https://pro-rankedboost.netdna-ssl.com/wp-content/uploads/2017/06/Pokemon-GO-Rare-Egg-Yellow.png"
