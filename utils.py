@@ -193,9 +193,11 @@ def lireHeure(temps):
     """retourne le temps donné par GymHuntr au format attendu par Raid"""
     assert isinstance(temps, str)
 
-    temps = temps.replace("*Raid Ending: ", "").replace("*", "")
+    temps = temps.replace("*Raid Ending: ", "").replace("*Raid Starting: ", "").replace("*", "")
     temps = temps.split(" ")
-    temps = datetime.timedelta(hours= temps[0], minutes=temps[2], seconds=temps[5])
+    for temp in temps:
+        print (temp)
+    temps = datetime.timedelta(hours= int(temps[0]), minutes=int(temps[2]), seconds=int(temps[4]))
     temps = datetime.datetime.now() + temps
 
     return temps
@@ -221,7 +223,22 @@ def removeGym(raid, gymList):
             break
 
     if not index == -1: gymList.pop(key)
+def readGymEmbed(embed):
+    """return the tuple of crucial information (pokeName, battlePlace, battleTime)"""
 
+    args = embed["description"].split ("\n")
+    #for arg in args:
+    #    print (arg)
+
+    if not embed["title"].find("Raid is starting soon!") == -1:
+        pokeName = str("t%s" %embed["title"].split(" ")[2])
+        battleTime = lireHeure(args[1])
+    elif not embed["title"].find("Raid has started!") == -1:
+        pokename = args[1].lower()
+        battleTime = lireHeure(args[3])
+    battlePlace = lireLieu(args[0])
+
+    return (pokeName, battlePlace, battleTime)
 if __name__=="__main__":
     #debut des test unitaires
     string = "14_machin"

@@ -442,25 +442,29 @@ async def on_message(message):
             await client.delete_message(message)
 
     elif message.channel.name == "gymhuntr":
-        args = message.embeds[0]["descripsion"].lower().split("\n")
-        pokeName = args[1].lower()
-        battleTime = lireHeure(args[3])
-        battlePlace = lireLieu(args[0])
+        (pokeName, battlePlace, battleTime) = readGymEmbed(message.embeds[0])
 
+        print ("dans PogoBot")
+        print(pokename)
+        print(battlePlace)
+        print(getTimeStr(battleTime, "time"))
         #variable check
-        try:
-            assert isUniquePlace(battlePlace, cRaids)
-        except AssertionError:
-            return
+        #try:
+        #    assert isUniquePlace(battlePlace, cRaids)
+        #except AssertionError:
+        #    return
 
-        raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
-        if isUniquePlace(raid.battlePlace, cGyms):
-            cGyms.append(raid)
-        else:
-            updateGym(raid, cGym)
+        #raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
+        #if isUniquePlace(raid.battlePlace, cGyms):
+        #    cGyms.append(raid)
+        #else:
+        #    updateGym(raid, cGym)
 
-        await updateGymList()
-
+        #await updateGymList()
+        #print ("nom : %s" %message.author.name)
+        #for embed in message.embeds:
+        #    for key, field in embed.items():
+        #        print("%s: %s" %(key, field))
 #ajout d'emoji
 @client.event
 async def on_reaction_add(reaction, user):
