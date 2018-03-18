@@ -55,16 +55,15 @@ async def removeFromListe(cRaid):
 async def updateGymList(msg):
     """update le message des raids alentours"""
     content = "**Vu sur GymHuntr autour de nous :**\n"
-    embed = 0
+    embed = discord.Embed()
     field = ""
     if len(list(cGyms)) == 0:
         content += "pas de raid en vue, c'est visiblement pas l'heure"
     else:
-        embed = discord.Embed()
         for gym in cGyms.values():
             field += gym.outText()
         embed.add_field(name= "Actualisés", value=field)
-    await client.edit_message(msg, new_content=content, embed=embed if embed else None)
+    await client.edit_message(msg, new_content=content, embed=embed)
 
 #gestionnaire des Raid channels du forum
 async def removeCRaid(cRaid):
@@ -445,7 +444,6 @@ async def on_message(message):
             await client.delete_message(message)
 
     elif message.channel.name == "gymhuntr": #and message.content:
-        print ("prout")
         print (message.content)
         #(pokeName, battlePlace, battleTime) = readGymEmbed(message.embeds[0])
 
@@ -455,7 +453,7 @@ async def on_message(message):
         #print(getTimeStr(battleTime, "time"))
 
         pokeName = "carapuce"
-        battlePlace = "DTC"
+        battlePlace = "dtc"
         battleTime = datetime.datetime.now() + datetime.timedelta(minutes=100)
 
         #variable check

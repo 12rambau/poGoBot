@@ -201,8 +201,6 @@ def lireHeure(temps):
 
     temps = temps.replace("*Raid Ending: ", "").replace("*Raid Starting: ", "").replace("*", "")
     temps = temps.split(" ")
-    for temp in temps:
-        print (temp)
     temps = datetime.timedelta(hours= int(temps[0]), minutes=int(temps[2]), seconds=int(temps[4]))
     temps = datetime.datetime.now() + temps
 
@@ -220,21 +218,18 @@ def updateGym(raid, gymList):
     if not index == -1 : gymList[index] = raid
 def removeGym(raid, gymList):
     """remove the raid that has the same place as the parameter raid"""
-    assert isinstance(raid, Raid)
+    #assert isinstance(raid, Raid)
 
     index = -1
     for key, gym in gymList.items():
         if gym.battlePlace == raid.battlePlace:
             index = key
             break
-
     if not index == -1: gymList.pop(key)
 def readGymEmbed(embed):
     """return the tuple of crucial information (pokeName, battlePlace, battleTime)"""
 
     args = embed["description"].split ("\n")
-    #for arg in args:
-    #    print (arg)
 
     if not embed["title"].find("Raid is starting soon!") == -1:
         pokeName = str("t%s" %embed["title"].split(" ")[2])
@@ -245,9 +240,6 @@ def readGymEmbed(embed):
     battlePlace = lireLieu(args[0])
 
     return (pokeName, battlePlace, battleTime)
+
 if __name__=="__main__":
-    #debut des test unitaires
-    string = "14_machin"
-    print ("%i" %getNumChannel(string))
-    string = "2_machin"
-    print ("%i" %getNumChannel(string))
+    pass
