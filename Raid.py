@@ -160,7 +160,7 @@ class Raid:
 
     def outText(self):
         """set an standart one line output for the raid"""
-        message = str("**%s : **" %self.getTitre())
+        message = str("**%s** :" %self.getTitre().lower())
         message += str("%s " %self.battlePlace)
         if self.pokeId < 0:
             message += getTimeStr(self.eclosion, "eclosion")

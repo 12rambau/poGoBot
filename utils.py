@@ -4,6 +4,8 @@ from data import *
 import re
 import unidecode
 import discord
+from Channel import *
+from Raid import *
 
 #function hors loop
 def isNotBot(m):
@@ -87,11 +89,15 @@ def isUniquePlace(battlePlace, RaidsList):
 
     libre = 1
     for raidElement in RaidsList.values():
-        if isinstance(raidElement, Channel):
-            if battlePlace == raidElement.raid.battlePlace: libre = 0
-        if isinstance(raidElement, Raid):
-            if battlePlace == raidElement.battlePlace: libre = 0
+        if battlePlace == raidElement.raid.battlePlace: libre = 0
+    return libre
+def isUniquePlaceGym(battlePlace, RaidsList):
+    """retourne 1 si l'endroit n'est pas utilisé 0 sinon"""
+    assert isinstance(battlePlace, str)
 
+    libre = 1
+    for raidElement in RaidsList.values():
+        if battlePlace == raidElement.battlePlace: libre = 0
     return libre
 def isOeufName(pokeName):
     """retourne 1 si c'est un nom d'oeuf, O sinon"""
@@ -203,7 +209,7 @@ def lireHeure(temps):
     return temps
 def updateGym(raid, gymList):
     """replace the old gym informations with the updated one"""
-    assert isinstance(raid, Raid)
+    #assert isinstance(raid, Raid)
 
     index = -1
     for key, gym in gymList.items():

@@ -56,11 +56,14 @@ async def updateGymList(msg):
     """update le message des raids alentours"""
     content = "**Vu sur GymHuntr autour de nous :**\n"
     embed = 0
+    field = ""
     if len(list(cGyms)) == 0:
         content += "pas de raid en vue, c'est visiblement pas l'heure"
     else:
+        embed = discord.Embed()
         for gym in cGyms.values():
-            embed += gym.outText()
+            field += gym.outText()
+        embed.add_field(name= "Actualisés", value=field)
     await client.edit_message(msg, new_content=content, embed=embed if embed else None)
 
 #gestionnaire des Raid channels du forum
@@ -417,9 +420,9 @@ async def on_message(message):
             raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
             cRaid = cRaids[ChannelRaid.nb_channel].ajouterRaid(raid)
 
-            if not isUniquePlace(raid.battlePlace, cGyms):
+            if not isUniquePlaceGym(raid.battlePlace, cGyms):
                 removeGym(raid, cGyms)
-                await updateGymList()
+                await updateGymList(msgGymHuntr)
 
             await addToListe(cRaid)
             cRaid.pinMsg = await client.send_message(cCom, embed=raid.embed())
@@ -441,30 +444,38 @@ async def on_message(message):
             await freeFreshmen(user)
             await client.delete_message(message)
 
-    elif message.channel.name == "gymhuntr":
-        (pokeName, battlePlace, battleTime) = readGymEmbed(message.embeds[0])
+    elif message.channel.name == "gymhuntr": #and message.content:
+        print ("prout")
+        print (message.content)
+        #(pokeName, battlePlace, battleTime) = readGymEmbed(message.embeds[0])
 
-        print ("dans PogoBot")
-        print(pokename)
-        print(battlePlace)
-        print(getTimeStr(battleTime, "time"))
+        #print ("dans PogoBot")
+        #print(pokename)
+        #print(battlePlace)
+        #print(getTimeStr(battleTime, "time"))
+
+        pokeName = "carapuce"
+        battlePlace = "DTC"
+        battleTime = datetime.datetime.now() + datetime.timedelta(minutes=100)
+
         #variable check
-        #try:
-        #    assert isUniquePlace(battlePlace, cRaids)
-        #except AssertionError:
-        #    return
+        try:
+            assert isUniquePlace(battlePlace, cRaids)
+        except AssertionError:
+            return
 
-        #raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
-        #if isUniquePlace(raid.battlePlace, cGyms):
-        #    cGyms.append(raid)
-        #else:
-        #    updateGym(raid, cGym)
+        raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
+        if isUniquePlaceGym(raid.battlePlace, cGyms):
+            cGyms[len(list(cGyms))+1] = raid
+        else:
+            updateGym(raid, cGyms)
 
-        #await updateGymList()
+        await updateGymList(msgGymHuntr)
         #print ("nom : %s" %message.author.name)
         #for embed in message.embeds:
         #    for key, field in embed.items():
         #        print("%s: %s" %(key, field))
+
 #ajout d'emoji
 @client.event
 async def on_reaction_add(reaction, user):
@@ -502,8 +513,6 @@ async def on_member_update(before, after):
     except StopIteration:
         await client.send_message(after, "va reveiller ton admin et dis lui qu'il a oublié le message d'accueil. Au fait BONJOUR !!")
     await client.send_message(after, intro.content.replace("!intro", ""))
-
-
 
 @client.event
 async def on_member_join(member):
