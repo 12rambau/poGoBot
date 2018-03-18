@@ -445,16 +445,19 @@ async def on_message(message):
 
     elif message.channel.name == "gymhuntr": #and message.content:
         print (message.content)
-        #(pokeName, battlePlace, battleTime) = readGymEmbed(message.embeds[0])
+        try:
+            (pokeName, battlePlace, battleTime) = readGymEmbed(message.embeds[0])
+        except IndexError:
+            return
 
-        #print ("dans PogoBot")
-        #print(pokename)
-        #print(battlePlace)
-        #print(getTimeStr(battleTime, "time"))
+        print ("dans PogoBot")
+        print(pokeName)
+        print(battlePlace)
+        print(getTimeStr(battleTime, "time"))
 
-        pokeName = "carapuce"
-        battlePlace = "dtc"
-        battleTime = datetime.datetime.now() + datetime.timedelta(minutes=100)
+        #pokeName = "carapuce"
+        #battlePlace = "dtc"
+        #battleTime = datetime.datetime.now() + datetime.timedelta(minutes=100)
 
         #variable check
         try:

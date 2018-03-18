@@ -230,15 +230,18 @@ def readGymEmbed(embed):
     """return the tuple of crucial information (pokeName, battlePlace, battleTime)"""
 
     args = embed["description"].split ("\n")
-
+    pokeName = ""
     if not embed["title"].find("Raid is starting soon!") == -1:
         pokeName = str("t%s" %embed["title"].split(" ")[2])
         battleTime = lireHeure(args[1])
     elif not embed["title"].find("Raid has started!") == -1:
         pokename = args[1].lower()
         battleTime = lireHeure(args[3])
-    battlePlace = lireLieu(args[0])
+    else:
+        raise Exception("pas reussi à lire")
 
+    battlePlace = lireLieu(args[0])
+    print(pokeName)
     return (pokeName, battlePlace, battleTime)
 
 if __name__=="__main__":
