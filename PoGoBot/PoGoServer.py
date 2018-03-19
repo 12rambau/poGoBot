@@ -4,7 +4,7 @@ import re
 class PoGoServer:
 
     _REGEX_RAID_ = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*")
-    _REGEX_RAID_EX = re.compile(r"[0-9]*_ex_[a-z0-9]*-[0-9]*")
+    _REGEX_RAID_EX_ = re.compile(r"[0-9]*_ex_[a-z0-9]*-[0-9]*")
 
     def __init__(self, server):
 
