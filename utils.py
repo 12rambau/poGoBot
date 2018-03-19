@@ -60,6 +60,9 @@ def lirePokeName(pokeName):
             num = int(num)
             if num < 6 and num > 0: return -num
 
+    if pokeName.lower() == "tex":
+        return -6
+
     for ip, pokemon in enumerate(pokedex):
         for nom in pokemon.values():
             if nom == str(pokeName).lower():
@@ -109,14 +112,15 @@ def isOeufName(pokeName):
 def rappelCommand(commandName):
     """envoi à l'utilisateur un message permettant de reexpliquer la commande"""
     return str("Comme je suis sympa je te redonne la commande que tu as essayé de taper :\n %s" %commandex[commandName])
-def getTimeStr(time, label):
+def getTimeStr(time, label, ex):
     """return the str corresponding to the time at (%H:%M) format with the appropriate label"""
 
+    timeFormat = "%d/%m/%Y %H:%M" if ex else "%H:%M"
     if time == 0:
-        temps = str("%s: ? \n" %label)
+        temps = str("%s: ?\n" %label)
     else:
         assert isinstance(time, datetime.datetime)
-        temps = str("%s: %s \n" %(label, time.strftime("%H:%M")))
+        temps = str("%s: %s\n" %(label, time.strftime(timeFormat)))
 
     return temps
 def isHour(time):
@@ -149,7 +153,7 @@ def getNumChannel(name):
     """retourne l'id du salon"""
     index = name.find("_")
     numRaid = int(name[:index])
-    assert(numRaid > 0)
+    #assert(numRaid > 0)
 
     return numRaid
 def isLevel(lvl):
@@ -242,6 +246,6 @@ def readGymEmbed(embed):
 
     battlePlace = lireLieu(args[0])
     return (pokeName, battlePlace, battleTime)
-
+  
 if __name__=="__main__":
     pass
