@@ -40,13 +40,13 @@ class Raid:
         embed = discord.Embed(title=self.getTitre())
         embed.set_thumbnail(url=self.getUrl())
 
-        field = self.getCapitaine()
-        field += getTimeStr(self.lancement, "lancement", self.ex)
+        field = self.getCapitaine("**chef:**")
+        field += getTimeStr(self.lancement, "**lancement:**", self.ex)
         if self.pokeId < 0:
-            field += getTimeStr(self.eclosion, "eclosion", self.ex)
+            field += getTimeStr(self.eclosion, "**eclosion:**", self.ex)
         else:
-            field += getTimeStr(self.fin, "fin", self.ex)
-        field += str("%i participants \n" %(len(self.participants)))
+            field += getTimeStr(self.fin, "**fin:**", self.ex)
+        field += str("**%i participants** \n" %(len(self.participants)))
         embed.add_field(name=self.battlePlace.lower(), value=field)
 
         embed.set_footer(text=self.getListParticipants())
@@ -137,11 +137,11 @@ class Raid:
             titre = "Tex"
         return titre
 
-    def getCapitaine(self):
+    def getCapitaine(self, label):
         if self.capitaine.nick:
-            capitaine = str("chef: @%s\n" %(self.capitaine.nick))
+            capitaine = str("%s @%s\n" %(label, self.capitaine.nick))
         else:
-            capitaine = str("chef: @%s\n" %(self.capitaine.name))
+            capitaine = str("%s @%s\n" %(label, self.capitaine.name))
 
         return capitaine
 
@@ -162,12 +162,12 @@ class Raid:
 
     def outText(self):
         """set an standart one line output for the raid"""
-        message = str("**%s** :" %self.getTitre().lower())
+        message = str("**%s:** " %self.getTitre().lower())
         message += str("%s " %self.battlePlace)
         if self.pokeId < 0:
-            message += getTimeStr(self.eclosion, "eclosion", self.ex)
+            message += getTimeStr(self.eclosion, "**eclosion:**", self.ex)
         elif self.pokeId > 0:
-            message += getTimeStr(self.fin, "fin", self.ex)
+            message += getTimeStr(self.fin, "**fin:**", self.ex)
         message += "\n"
         return message
 

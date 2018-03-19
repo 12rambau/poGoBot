@@ -16,7 +16,7 @@ def isNotRaid(m):
     """ prend en entre un discord.on_message
     renvoit 0 si c'est un message qui doit rester dans la console de raid
     1 sinon"""
-    if m.content.lower() == "**liste des raids en cours**" or m.content.startswith("**Vu sur GymHuntr autour de nous :**") or m.content.lower().startswith("raid en cour sur"): return 0
+    if m.content.lower() == "**liste des raids en cours**" or m.content.startswith("**Vu sur GymHuntr autour de nous :**") or m.content.lower().startswith("raid en cour sur")or m.content.lower() == "**liste des raids ex**": return 0
     return 1
 def isRappelCommand(m):
     """ renvoit 1 si c'est un rappel de commande 0 sinon"""
@@ -117,10 +117,10 @@ def getTimeStr(time, label, ex):
 
     timeFormat = "%d/%m/%Y %H:%M" if ex else "%H:%M"
     if time == 0:
-        temps = str("%s: ?\n" %label)
+        temps = str("%s ?\n" %label)
     else:
         assert isinstance(time, datetime.datetime)
-        temps = str("%s: %s\n" %(label, time.strftime(timeFormat)))
+        temps = str("%s %s\n" %(label, time.strftime(timeFormat)))
 
     return temps
 def isHour(time):
@@ -246,6 +246,6 @@ def readGymEmbed(embed):
 
     battlePlace = lireLieu(args[0])
     return (pokeName, battlePlace, battleTime)
-  
+
 if __name__=="__main__":
     pass

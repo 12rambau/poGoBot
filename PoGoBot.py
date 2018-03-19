@@ -60,13 +60,13 @@ def readPinMessage(message):
     battlePlace = embed["fields"][0]["name"]
 
     args = embed["fields"][0]["value"].split("\n")
-    chef = args[0].replace("chef: @", "")
+    chef = args[0].replace("**chef:** @", "")
     chef = next(m for m in server.members if (m.name == chef or m.nick == chef) )
 
     temps = args[2][-16:]
     temps = datetime.datetime.strptime(temps, "%d/%m/%Y %H:%M")
 
-    nbParticipant = int(args[3].split(" ")[0])
+    nbParticipant = int(args[3].split(" ")[0].replace("**", ""))
     participants = []
     if nbParticipant > 0:
         footer = embed["footer"]["text"].split("@")
@@ -248,19 +248,14 @@ async def on_ready():
     for cId in cToDelete:
         await client.delete_channel(client.get_channel(cId))
 
-    #ecrire le message de GymHuntr
-    await client.send_message(cRaidAdd, "je vais pas rester")
-
-    #ecrire le message initiale des raid
-    await client.send_message(cRaidAdd, "**Liste des raids en cours**")
-
-    #reaffectation des raids Ex
+    #liste des raids Ex déjà présents
+    await client.send_message(cRaidAdd, "**liste des Raids Ex**")
     for cCurrent in server.channels:
         if regexEx.match(cCurrent.name):
             pinMsg = next(m for m in await client.pins_from(cCurrent))
             (pokeName, chef, battleTime, battlePlace, participants) = readPinMessage(pinMsg)
 
-            raid = Raid(1,0,pokeName,chef, battleTime, battlePlace)
+            raid = Raid(1,ChannelRaid.nb_channel+1,pokeName,chef, battleTime, battlePlace)
             raid.lancement = battleTime
             raid.participants = participants
             cRaidEx[ChannelRaid.nb_channel] = ChannelRaid(cCurrent)
@@ -269,7 +264,12 @@ async def on_ready():
             await addToListe(cRaid)
             await editCRaid(cRaid)
 
+    #ecrire le message de GymHuntr
+    await client.send_message(cRaidAdd, "je vais pas rester")
 
+    #ecrire le message initiale des raid
+    await client.send_message(cRaidAdd, "**Liste des raids en cours**")
+    
     print("Bot is ready and back online !")
 
     #changer les couleurs des utilisateurs en attente
