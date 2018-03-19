@@ -235,14 +235,12 @@ def readGymEmbed(embed):
         pokeName = str("t%s" %embed["title"].split(" ")[1])
         battleTime = lireHeure(args[1])
     elif not embed["title"].find("Raid has started!") == -1:
-        print ("_%s_" %args[1].lower())
         pokeName = args[1].lower()
         battleTime = lireHeure(args[3])
     else:
         raise Exception("pas reussi à lire")
 
     battlePlace = lireLieu(args[0])
-    print(":%s:" %pokeName)
     return (pokeName, battlePlace, battleTime)
 
 if __name__=="__main__":

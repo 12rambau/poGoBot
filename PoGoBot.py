@@ -401,7 +401,7 @@ async def on_message(message):
         if message.content.lower().startswith("!add") and not len(args) < 4:
             pokeName = unidecode.unidecode(u"%s" %(args[1]))
             battleTime = args[2]
-            battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[3:])))
+            battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[3:]))).lower()
 
             #variable check
             try:
@@ -444,20 +444,10 @@ async def on_message(message):
             await client.delete_message(message)
 
     elif message.channel.name == "gymhuntr": #and message.content:
-        print (message.content)
         try:
             (pokeName, battlePlace, battleTime) = readGymEmbed(message.embeds[0])
         except IndexError:
             return
-
-        print ("dans PogoBot")
-        print(pokeName)
-        print(battlePlace)
-        print(getTimeStr(battleTime, "time"))
-
-        #pokeName = "carapuce"
-        #battlePlace = "dtc"
-        #battleTime = datetime.datetime.now() + datetime.timedelta(minutes=100)
 
         #variable check
         try:
