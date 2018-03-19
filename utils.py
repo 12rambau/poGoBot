@@ -194,7 +194,7 @@ def lireLieu(lieu):
     """renvoit le lieu issu de GymHuntr formaté comme il se doit"""
     assert isinstance(lieu, str)
 
-    return lieu.lower().replace(".**", "").replace("**", "")
+    return unidecode.unidecode(u"%s" %lieu.lower().replace(".**", "").replace("**", ""))
 def lireHeure(temps):
     """retourne le temps donné par GymHuntr au format attendu par Raid"""
     assert isinstance(temps, str)
@@ -232,16 +232,17 @@ def readGymEmbed(embed):
     args = embed["description"].split ("\n")
     pokeName = ""
     if not embed["title"].find("Raid is starting soon!") == -1:
-        pokeName = str("t%s" %embed["title"].split(" ")[2])
+        pokeName = str("t%s" %embed["title"].split(" ")[1])
         battleTime = lireHeure(args[1])
     elif not embed["title"].find("Raid has started!") == -1:
-        pokename = args[1].lower()
+        print ("_%s_" %args[1].lower())
+        pokeName = args[1].lower()
         battleTime = lireHeure(args[3])
     else:
         raise Exception("pas reussi à lire")
 
     battlePlace = lireLieu(args[0])
-    print(pokeName)
+    print(":%s:" %pokeName)
     return (pokeName, battlePlace, battleTime)
 
 if __name__=="__main__":
