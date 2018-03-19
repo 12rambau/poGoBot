@@ -160,6 +160,17 @@ class Raid:
 
         self.capitaine = member
 
+    def outText(self):
+        """set an standart one line output for the raid"""
+        message = str("**%s** :" %self.getTitre().lower())
+        message += str("%s " %self.battlePlace)
+        if self.pokeId < 0:
+            message += getTimeStr(self.eclosion, "eclosion")
+        elif self.pokeId > 0:
+            message += getTimeStr(self.fin, "fin")
+        message += "\n"
+        return message
+      
     def getRaidName(self):
         """return the name to give to the channel used by the raid"""
         name = str("%s_" %self.id)
@@ -167,6 +178,7 @@ class Raid:
         name += lirePokeId(self.pokeId)
         name += str("-%i" %len(self.participants))
         return name
+
 if __name__=="__main__":
     #debut des test unitaires
     pass
