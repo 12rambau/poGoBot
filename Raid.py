@@ -165,12 +165,12 @@ class Raid:
         message = str("**%s** :" %self.getTitre().lower())
         message += str("%s " %self.battlePlace)
         if self.pokeId < 0:
-            message += getTimeStr(self.eclosion, "eclosion")
+            message += getTimeStr(self.eclosion, "eclosion", self.ex)
         elif self.pokeId > 0:
-            message += getTimeStr(self.fin, "fin")
+            message += getTimeStr(self.fin, "fin", self.ex)
         message += "\n"
         return message
-      
+
     def getRaidName(self):
         """return the name to give to the channel used by the raid"""
         name = str("%s_" %self.id)

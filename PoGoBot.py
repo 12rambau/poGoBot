@@ -34,7 +34,6 @@ async def addToListe(cRaid):
     global cRaidAdd
 
     if not isinstance(cRaid, ChannelRaid): return 0
-
     await client.purge_from(cRaidAdd, check=isNotRaid)
     content = str("raid en cour sur <#%s>" %(cRaid.com.id))
     msg = await client.send_message(cRaidAdd, content=content, embed=cRaid.raid.embed())
@@ -56,7 +55,6 @@ def readPinMessage(message):
     assert isinstance(message, discord.Message)
     embed = next (e for e in message.embeds)
 
-    print (embed)
     pokeName = embed["title"]
 
     battlePlace = embed["fields"][0]["name"]
@@ -210,7 +208,7 @@ async def waitTimer():
             cRaidCurrent.retirerRaid()
             await removeCRaid(cRaidCurrent)
             del cRaids[cId]
-            
+
         #faire le menage dans les raids de GymHuntr
         index = []
         for key, gym in cGyms.items():
@@ -304,7 +302,7 @@ async def on_message(message):
     global msgGymHuntr
 
     #se debarasser des messages privés et des disabled et du bot
-    if message.channel.is_private or not isAble(message.author) or message.author.bot: return
+    if message.channel.is_private or not isAble(message.author): return
 
     #variables internes
     args = message.content.lower().split(" ")
@@ -519,7 +517,7 @@ async def on_message(message):
                 await client.send_message(message.channel, rappelCommand("add ex"))
                 return
 
-            raid = Raid(1,0,pokeName,message.author, battleTime, battlePlace)
+            raid = Raid(1,ChannelRaid.nb_channel+1,pokeName,message.author, battleTime, battlePlace)
             cCom = await client.create_channel(server, raid.getRaidName())
             cRaidEx[ChannelRaid.nb_channel] = ChannelRaid(cCom)
             raid.lancement = battleTime
@@ -545,7 +543,7 @@ async def on_message(message):
                 await client.send_message(message.channel, rappelCommand("add"))
                 return
 
-            raid = Raid(0, 0,pokeName,message.author, battleTime, battlePlace)
+            raid = Raid(0, ChannelRaid.nb_channel+1,pokeName,message.author, battleTime, battlePlace)
             cCom = await client.create_channel(server, raid.getRaidName())
             cRaids[ChannelRaid.nb_channel] = ChannelRaid(cCom)
             cRaid = cRaids[ChannelRaid.nb_channel].ajouterRaid(raid)
@@ -587,7 +585,7 @@ async def on_message(message):
         except AssertionError:
             return
 
-        raid = Raid(0,pokeName,message.author, battleTime, battlePlace)
+        raid = Raid(0, 0,pokeName,message.author, battleTime, battlePlace)
         if isUniquePlaceGym(raid.battlePlace, cGyms):
             cGyms[len(list(cGyms))+1] = raid
         else:
