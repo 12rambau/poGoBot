@@ -1,5 +1,6 @@
 #create and manage the PoGOBot server
 import re
+import discord
 
 class PoGoServer:
 
@@ -9,7 +10,7 @@ class PoGoServer:
     def __init__(self, server):
 
         #initialisation du compteur de cookie
-        self.cookieCompteur = 0
+        self.cookie = 0
 
         #initialisation du msgGymHuntr
         #il sert a stocker les informtions données par le GymHuntrBot
@@ -31,3 +32,17 @@ class PoGoServer:
             elif channel.name.lower() == "admin":
                 self.admin = channel
                 print("admin trouvé")
+
+    def isAble(member):
+        """renvoit 1 si le user est able 0 sinon"""
+        assert isinstance(member, discord.Member)
+
+        for role in member.roles:
+            if role.name == "disable": return 0
+
+        return 1
+
+    def addCookie(self):
+        """rajoute un cookie"""
+        self.cookie += 1
+        return self.cookie

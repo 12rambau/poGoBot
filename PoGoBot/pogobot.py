@@ -8,28 +8,36 @@ from PoGoServer import PoGoServer
 Client = discord.Client()
 bot = commands.Bot(command_prefix = "")
 
+global poGoServer
+
 #routine demarage
 @bot.event
 async def on_ready():
 
+    global poGoServer
+
     #recuperer le server
     poGoServer = PoGoServer(bot.get_server(os.environ["DISCORD_SERVER_ID"]))
 
+
 #ajout manuel d'evenement
-@client.event
+@bot.event
 async def on_message(message):
 
-    #se debarasser des messages privés et des disabled et du bot
-    #if message.channel.is_private or not isAble(message.author): return
+    global poGoServer
+
+    # se debarasser des messages privés et des disabled et du bot
+    if message.channel.is_private or not PoGoServer.isAble(message.author): return
 
     #variables internes
     args = message.content.lower().split(" ")
 
     #n'import où si on lui parle
-    if message.content.lower() == str("<@%s>" %client.user.id):
+    if message.content.lower() == str("<@%s>" %bot.user.id):
         pass
     elif message.content.lower() == "!cookie" :
-        pass
+        await bot.send_message(message.channel, "%i :cookie:" %poGoServer.addCookie())
+        await bot.delete_message(message)
     elif message.content.lower().startswith("!lvl") and len(args) == 2:
         pass
     elif message.content.lower().startswith("!team") and len(args) == 2:
@@ -41,7 +49,7 @@ async def on_message(message):
     elif PoGoServer._REGEX_RAID_EX_.match(message.channel.name):
             #numRaid = getNumChannel(message.channel.name)
             #cCurrent = cRaidEx[numRaid]
-            if cCurrent.isRaid():
+            if True:#cCurrent.isRaid():
                 if args[0].lower() == "!in" and len(args) == 2:
                     pass
                 elif args[0].lower() == "!out" and len(args) == 2:
@@ -61,7 +69,7 @@ async def on_message(message):
     elif PoGoServer._REGEX_RAID_.match(message.channel.name):
         #numRaid = getNumChannel(message.channel.name)
         #cCurrent = cRaids[numRaid]
-        if cCurrent.isRaid():
+        if True: #Current.isRaid():
             if args[0].lower() == "!in" and len(args) == 2:
                 pass
             elif args[0].lower() == "!out" and len(args) == 2:
@@ -80,7 +88,7 @@ async def on_message(message):
                 pass
 
     #on écoute la channel d'add
-    elif message.channel == cRaidAdd:
+    elif message.channel == poGoServer.raid:
         if message.content.lower() == "je vais pas rester":
             pass
         elif message.content.lower().startswith("!add ex") and not len(args) < 5:
@@ -91,7 +99,7 @@ async def on_message(message):
             pass
         elif isNotBot(message) : await client.delete_message(message)
 
-    elif message.channel == cAccueil:
+    elif message.channel == poGoServer.accueil:
         if message.content.lower().startswith("!free") and len(args) == 2:
             pass
 
@@ -99,26 +107,24 @@ async def on_message(message):
         pass
 
 #ajout d'emoji
-@client.event
+@bot.event
 async def on_reaction_add(reaction, user):
-    regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
-    if regex.match(reaction.message.channel.name):
+    if True:#regex.match(reaction.message.channel.name):
         pass
 
 #retrait d'emoji
-@client.event
+@bot.event
 async def on_reaction_remove(reaction, user):
-    regex = re.compile(r"[0-9]*_[a-z0-9]*-[0-9]*") #nom des channels de raid
-    if regex.match(reaction.message.channel.name):
+    if True:#regex.match(reaction.message.channel.name):
         pass
 
-@client.event
+@bot.event
 async def on_member_update(before, after):
     pass
 
-@client.event
+@bot.event
 async def on_member_join(member):
     pass
 
-    
+
 bot.run(os.environ['DISCORD_TOKEN'])
