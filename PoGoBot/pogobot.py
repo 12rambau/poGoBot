@@ -30,16 +30,18 @@ async def on_message(message):
     if message.channel.is_private or not PoGoServer.isAble(message.author): return
 
     #variables internes
-    args = message.content.lower().split(" ")
+    entry = Entry(message, bot)
 
     #n'import où si on lui parle
     if message.content.lower() == str("<@%s>" %bot.user.id):
         pass
     elif message.content.lower() == "!cookie" :
-        await bot.send_message(message.channel, "%i :cookie:" %poGoServer.addCookie())
+        await bot.send_message(message.channel, "%i :cookie:" poGoServer.addCookie())
         await bot.delete_message(message)
     elif message.content.lower().startswith("!lvl") and len(args) == 2:
-        pass
+        if await entry.isLevel():
+            await addLevel(entry.entry, message.author, bot)
+            await bot.delete_message(message)
     elif message.content.lower().startswith("!team") and len(args) == 2:
         pass
     elif message.content.lower().startswith("!nick"):
