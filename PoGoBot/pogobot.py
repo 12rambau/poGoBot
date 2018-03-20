@@ -4,6 +4,7 @@ from discord.ext.commands import Bot
 from discord.ext import commands
 import os
 from PoGoServer import PoGoServer
+import data.commandex
 
 Client = discord.Client()
 bot = commands.Bot(command_prefix = "")
@@ -34,7 +35,8 @@ async def on_message(message):
 
     #n'import où si on lui parle
     if message.content.lower() == str("<@%s>" %bot.user.id):
-        pass
+        await client.send_message(message.channel, sendHelp())
+        await client.delete_message(message)
     elif message.content.lower() == "!cookie" :
         await bot.send_message(message.channel, "%i :cookie:" poGoServer.addCookie())
         await bot.delete_message(message)
