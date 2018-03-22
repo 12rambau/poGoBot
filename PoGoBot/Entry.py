@@ -19,18 +19,33 @@ class Entry:
             self.entry = int(lvl)
             return 1
         except AssertionError:
-            await bot.send_message(message.channel, rappelCommand("lvl"))
+            await bot.send_message(self.entity.channel, rappelCommand("lvl"))
             return 0
 
     async def isTeam(self):
         """change la valeur de l'entry pour correspndre au attentes de la commande team return 1 si ça passe 0 sinon"""
         try:
-            assert isinstance(entry, discord.message)
-            args = self.entry.content.plit(" ")
+            assert isinstance(self.entry, discord.message)
+            args = self.entry.content.split(" ")
+            assert len(args) == 2
             self.entity = findChannel(args[1], "fr")
             assert channel
+            return 1
         except AssertionError:
-            await bot.send_message(message.channel, rappelCommand("team"))
+            await bot.send_message(self.entity.channel, rappelCommand("team"))
+            return 0
+
+    async def isNick(self):
+        """change la commande pour correspondre aux attentes de la commande nick
+        return 1 si ça passe 0 sinon"""
+        try:
+            assert isinstance(self.entry, discord.message)
+            args = self.entry.content.split(" ")
+            assert len(args) == 2
+            self.entity = args[1]
+            return 1
+        except AssertionError:
+            await bot.send_message(self.entity.channel, rappelCommand("nick"))
             return 0
 
 

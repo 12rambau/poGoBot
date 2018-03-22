@@ -2,7 +2,7 @@
 import asyncio
 import re
 
-async def addLevel(lvl, member, bot):
+async def updateLevel(lvl, member, bot):
     """ajoute un nouveau nickname à l'utilisateur"""
 
     regex = re.compile(r"^.* \([0-9]*\)$") #un nick avec un niveau
@@ -37,6 +37,19 @@ async def updateTeam(team, member, bot, server):
         await client.remove_roles(member, attente)
 
     await client.add_roles(member, next(r for r in server.roles if r.name == team))
+
+async def updateNick(newNick, member, bot):
+    """donne un surnom au joueur en tenant compte du niveau eventuellement renseigner"""
+    assert isinstance(member, discord.Member)
+
+    regex = re.compile(r"^.* \([0-9]*\)$") #un nick avec un niveau
+
+    nick = member.nick if member.nick else  member.name
+
+    if regex.match(nick):
+        newNick = re.sub(r"^.* \(", str("%s (" %newNick), nick)
+
+    await client.change_nickname(member, newNick)
 
 if __name__=="__main__":
     pass

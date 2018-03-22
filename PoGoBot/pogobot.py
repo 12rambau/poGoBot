@@ -42,14 +42,16 @@ async def on_message(message):
         await bot.delete_message(message)
     elif message.content.lower().startswith("!lvl") and len(args) == 2:
         if await entry.isLevel():
-            await addLevel(entry.entry, message.author, bot)
+            await updateLevel(entry.entry, message.author, bot)
             await bot.delete_message(message)
     elif message.content.lower().startswith("!team") and len(args) == 2:
         if await entry.isTeam():
-            await updateTeam(message.author, bot, poGoServer.server)
+            await updateTeam(entry, message.author, bot, poGoServer.server)
             await bot.delete_message(message)
     elif message.content.lower().startswith("!nick"):
-        pass
+        if await entry.isNick():
+            await updateNick(entry, message.author,bot)
+            await bot.delete_message(message)
 
     #ecouter les channels de raid Ex
     elif PoGoServer._REGEX_RAID_EX_.match(message.channel.name):
