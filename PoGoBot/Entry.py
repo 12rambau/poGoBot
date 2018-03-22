@@ -22,5 +22,17 @@ class Entry:
             await bot.send_message(message.channel, rappelCommand("lvl"))
             return 0
 
+    async def isTeam(self):
+        """change la valeur de l'entry pour correspndre au attentes de la commande team return 1 si ça passe 0 sinon"""
+        try:
+            assert isinstance(entry, discord.message)
+            args = self.entry.content.plit(" ")
+            self.entity = findChannel(args[1], "fr")
+            assert channel
+        except AssertionError:
+            await bot.send_message(message.channel, rappelCommand("team"))
+            return 0
+
+
 if __name__=="__main__":
     pass

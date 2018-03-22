@@ -45,7 +45,9 @@ async def on_message(message):
             await addLevel(entry.entry, message.author, bot)
             await bot.delete_message(message)
     elif message.content.lower().startswith("!team") and len(args) == 2:
-        pass
+        if await entry.isTeam():
+            await updateTeam(message.author, bot, poGoServer.server)
+            await bot.delete_message(message)
     elif message.content.lower().startswith("!nick"):
         pass
 

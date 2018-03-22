@@ -8,7 +8,9 @@ class PoGoServer:
     _REGEX_RAID_EX_ = re.compile(r"[0-9]*_ex_[a-z0-9]*-[0-9]*")
 
     def __init__(self, server):
-
+        #initialisation du server
+        self.server = server
+        
         #initialisation du compteur de cookie
         self.cookie = 0
 
