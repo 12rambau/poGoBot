@@ -55,10 +55,11 @@ class Raid:
         else:
             await bot.edit_message(self.pinMsg, embed=self.embed())
 
+        msg = str("raid en cour sur <#%s>" %(self.channel.id))
         if self.listMsg == 0:
-            self.listMsg = await bot.send_message(poGoServer.raid, embed=self.embed())
+            self.listMsg = await bot.send_message(poGoServer.raid, content=msg, embed=self.embed())
         else:
-            await bot.edit_message(self.listMsg, embed=self.embed())
+            await bot.edit_message(self.listMsg,new_content=msg, embed=self.embed())
 
     def embed(self):
         """ Retourne un embed formaté pour être lu par discord"""

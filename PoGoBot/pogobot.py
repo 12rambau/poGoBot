@@ -100,8 +100,10 @@ async def on_message(message):
         if message.content.lower() == "je vais pas rester":
             pass
         elif message.content.lower().startswith("!add ex"):
-            if await entry.isAddRaidEx():
-                raid = Raid()
+            print("prout1")
+            if await entry.isAddRaidEx(bot):
+                print("prout")
+                raid = Raid(1,entry.entry[0],message.author, entry.entry[1], entry.entry[2])
                 await raid.updateCommunication(bot, poGoServer)
                 await bot.delete_message(message)
         elif message.content.lower().startswith("!add"):

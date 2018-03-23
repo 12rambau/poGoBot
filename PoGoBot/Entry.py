@@ -77,23 +77,24 @@ class Entry:
             await bot.send_message(self.entry.channel, rappelCommand("add"))
             return 0
 
-    async def isRaidEx(self):
+    async def isAddRaidEx(self, bot):
         """transforme les données de la commande en tuple pour être utilisé par la command add, O sinon"""
+
         try:
             assert isinstance(self.entry, discord.Message)
             args = self.entry.content.split(" ")
-            assert len(args) > 5
+            assert len(args) > 4
 
             #test the date
             battleTime = datetime.strptime(str("%s %s" %(args[2], args[3])), "%d/%m/%Y %H:%M")
-            assert battleTime > datetime()
+            assert battleTime > datetime.now()
 
             #manipulation lieu
             battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[4:]))).lower()
 
             #on place tout ça dans un tuple
-            self.entry = ("tex", battleTime, battlePlace)
-
+            self.entry = ("t6", battleTime, battlePlace)
+            return 1
         except (AssertionError, ValueError):
             await bot.send_message(self.entry.channel, rappelCommand("add ex"))
             return 0
