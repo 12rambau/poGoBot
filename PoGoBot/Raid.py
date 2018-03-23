@@ -1,9 +1,9 @@
 import time
 import datetime
 import re
-from data import pokedex
 import discord
-from utils import *
+import asyncio
+from data.pokedex import *
 
 class Raid:
     """ classe permettant de décrire un raid instancié:
@@ -13,16 +13,20 @@ class Raid:
     - lancement: heure de lancement du raid
     - fin: heure de fin du raids
     - eclosion: si c'est un oeuf on met l'heure d'éclosion
-    - battlePlace: le lieu du raid"""
+    - battlePlace: le lieu du raid
+    - com: la channel de communication pour le raids
+    - listMsg: le message dans la liste des raids"""
 
     TEMPS_PRESENCE = datetime.timedelta(minutes=45)
+    nb_raid = 0
 
-    def __init__(self, ex, id, pokeName, capitaine, temps, battlePlace):
+    def __init__(self, ex, pokeName, capitaine, temps, battlePlace):
         """constructeur parametré permettant de creer un Raid avec tous les paramettres"""
 
+        Raid.nb_raid += 1
         #pour l'instant je fais confiance à mes utilisateurs
         self.ex = ex
-        self.id = id
+        self.id = Raid.nb_raid
         self.pokeId = lirePokeName(pokeName)
         self.participants = []
         self.lancement = 0
@@ -34,6 +38,27 @@ class Raid:
             self.fin = temps
             self.eclosion = 0
         self.battlePlace = battlePlace
+        self.channel = 0
+        self.listMsg = 0
+        self.pinMsg = 0
+
+    async def updateCommunication(self, bot, poGoServer):
+        """update the communication channel and messages"""
+        if self.channel == 0:
+            self.channel = await bot.create_channel(poGoServer.server, self.getRaidName())
+        else:
+            await bot.edit_channel(cRaid.com, name=self.getRaidName())
+
+        if self.pinMsg == 0:
+            self.pinMsg = await bot.send_message(self.channel, embed=self.embed())
+            await bot.pin_message(self.pinMsg)
+        else:
+            await bot.edit_message(self.pinMsg, embed=self.embed())
+
+        if self.listMsg == 0:
+            self.listMsg = await bot.send_message(poGoServer.raid, embed=self.embed())
+        else:
+            await bot.edit_message(self.listMsg, embed=self.embed())
 
     def embed(self):
         """ Retourne un embed formaté pour être lu par discord"""
@@ -41,11 +66,11 @@ class Raid:
         embed.set_thumbnail(url=self.getUrl())
 
         field = self.getCapitaine("**chef:**")
-        field += getTimeStr(self.lancement, "**lancement:**", self.ex)
+        field += self.getTimeStr(self.lancement, "**lancement:**")
         if self.pokeId < 0:
-            field += getTimeStr(self.eclosion, "**eclosion:**", self.ex)
+            field += self.getTimeStr(self.eclosion, "**eclosion:**")
         else:
-            field += getTimeStr(self.fin, "**fin:**", self.ex)
+            field += self.getTimeStr(self.fin, "**fin:**")
         field += str("**%i participants** \n" %(len(self.participants)))
         embed.add_field(name=self.battlePlace.lower(), value=field)
 
@@ -54,21 +79,13 @@ class Raid:
         return embed
 
     def ajouterParticipant(self, newParticipant):
-        """ajoute des participants au raid
-        renvoit 0 si la personne est déjà inscrite
-        1 si l'inscripsion est un succès"""
+        """ajoute des participants au raid"""
         self.participants.append(newParticipant)
-        return 1
 
     def retirerParticipant(self, oldParticipant):
-        """retire un participant de la liste
-        renvoit 0 si le participant n'est pas dans la liste
-        1 si le remove est un succès"""
+        """retire un participant de la liste"""
         if self.isParticipant(oldParticipant):
             self.participants.remove(oldParticipant)
-            return 1
-        else:
-            return 0
 
     def isParticipant(self, searchParticipant):
         """ renvoit 0 si le participant n'existe pas 1 sinon"""
@@ -78,8 +95,7 @@ class Raid:
         return 0
 
     def choisirLaunch(self, battleTime):
-        """edite la date de lancement du raid
-        renvoit 1 si la date est au bon format 0 sinon"""
+        """edite la date de lancement du raid"""
         #tester la validité de la date
         self.lancement = battleTime
         return 1
@@ -179,6 +195,16 @@ class Raid:
         name += str("-%i" %len(self.participants))
         return name
 
+    def getTimeStr(self, time, label):
+        """return the str corresponding to the time with appropriate format and label"""
+
+        timeFormat = "%d/%m/%Y %H:%M" if self.ex else "%H:%M"
+        if time == 0:
+            temps = str("%s ?\n" %label)
+        else:
+            temps = str("%s %s\n" %(label, time.strftime(timeFormat)))
+
+        return temps
 if __name__=="__main__":
     #debut des test unitaires
     pass

@@ -1,3 +1,5 @@
+import re
+
 pokedex = [
     {"fr":  "bulbizarre",   "en":   "bulbazaur"},
     {"fr":  "herbizarre",   "en":   "ivysaur"},
@@ -387,25 +389,41 @@ pokedex = [
     {"fr":  "deoxys",       "en":   "deoxys"},
 ]
 
-teamdex = {
-    "bravoure":     {"fr":  "rouge",    "en":  "red" },
-    "intuition":    {"fr":  "jaune",    "en":   "yellow"},
-    "sagesse":      {"fr":  "bleu",     "en":   "blue"}
-}
+def isPokemon(pokeName):
+    """renvoit le pokename si c'est formaté comme un nom de pokemon 0 sinon"""
+    RegexOeuf = re.compile(r"t[0-9]")
+    if RegexOeuf.match(str(pokeName)):
+        lvl = int(pokeName.replace("t",""))
+        if lvl < 6 and lvl > 0: return pokeName
+    else:
+        for ip, pokemon in enumerate(pokedex):
+            for nom in pokemon.values():
+                if nom == pokeName: return pokeName
+    return 0
 
-commandex = {
-    "cookie":   "!cookie",
-    "add":      "!add [pokeName]/T[RaidLvl] [heure_de_fin]/[heure_eclosion] [lieu]",
-    "lvl":      "!lvl [mon_lvl]",
-    "team":     "!team [couleur]",
-    "edit":     "!edit [pokeName]",
-    "launch":   "!launch [heure de lancement]",
-    "in":       "!in OR !in @[user]",
-    "out":      "!out OR !out @[user]",
-    "nick":     "!nick [new_nickname]",
-    "help":     "@[le_nom_du_bot]",
-    "chef":     "!chef @[user]",
-    "purge":    "!purge",
-    "free":     "!free @[user]",
-    "add":      "!add ex [datetime_eclosion] [lieu]",
-    }
+def lirePokeName(pokeName):
+    """retourn le numero du pokemon ou de l'oeuf (-1 à -6) retourn 0 sinon"""
+    RegexOeuf = re.compile(r"t[0-9]")
+    if RegexOeuf.match(str(pokeName)):
+        num = pokeName[1:]
+        if int(num):
+            num = int(num)
+            if num < 7 and num > 0: return -num
+
+    for ip, pokemon in enumerate(pokedex):
+        for nom in pokemon.values():
+            if nom == str(pokeName).lower():
+                    return ip+1
+    return 0
+
+def lirePokeId(pokeId):
+    """retourn le nom de l'oeuf ou du pokemon, 0 sinon"""
+    if pokeId < 0:
+        return str("T%i" %(-pokeId))
+    elif pokeId > 0 and pokeId < len(pokedex):
+        return pokedex[pokeId-1]["fr"]
+    return 0
+
+if __name__=="__main__":
+    #debut des test unitaires
+    pass

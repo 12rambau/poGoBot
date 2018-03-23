@@ -12,7 +12,7 @@ commandex = {
     "chef":     "!chef @[user]",
     "purge":    "!purge",
     "free":     "!free @[user]",
-    "add":      "!add ex [datetime_eclosion] [lieu]",
+    "add ex":      "!add ex [datetime_eclosion] [lieu]",
     }
 
 def rappelCommand(commandName):

@@ -5,6 +5,8 @@ from discord.ext import commands
 import os
 from PoGoServer import PoGoServer
 import data.commandex
+from Raid import Raid
+from Entry import Entry
 
 Client = discord.Client()
 bot = commands.Bot(command_prefix = "")
@@ -38,7 +40,7 @@ async def on_message(message):
         await client.send_message(message.channel, sendHelp())
         await client.delete_message(message)
     elif message.content.lower() == "!cookie" :
-        await bot.send_message(message.channel, "%i :cookie:" poGoServer.addCookie())
+        await bot.send_message(message.channel, "%i :cookie:" %poGoServer.addCookie())
         await bot.delete_message(message)
     elif message.content.lower().startswith("!lvl") and len(args) == 2:
         if await entry.isLevel():
@@ -56,7 +58,6 @@ async def on_message(message):
     #ecouter les channels de raid Ex
     elif PoGoServer._REGEX_RAID_EX_.match(message.channel.name):
             #numRaid = getNumChannel(message.channel.name)
-            #cCurrent = cRaidEx[numRaid]
             if True:#cCurrent.isRaid():
                 if args[0].lower() == "!in" and len(args) == 2:
                     pass
@@ -76,7 +77,6 @@ async def on_message(message):
     #écoute des channels de raid
     elif PoGoServer._REGEX_RAID_.match(message.channel.name):
         #numRaid = getNumChannel(message.channel.name)
-        #cCurrent = cRaids[numRaid]
         if True: #Current.isRaid():
             if args[0].lower() == "!in" and len(args) == 2:
                 pass
@@ -99,13 +99,20 @@ async def on_message(message):
     elif message.channel == poGoServer.raid:
         if message.content.lower() == "je vais pas rester":
             pass
-        elif message.content.lower().startswith("!add ex") and not len(args) < 5:
-            pass
-        elif message.content.lower().startswith("!add") and not len(args) < 4:
-            pass
+        elif message.content.lower().startswith("!add ex"):
+            if await entry.isAddRaidEx():
+                raid = Raid()
+                await raid.updateCommunication(bot, poGoServer)
+                await bot.delete_message(message)
+        elif message.content.lower().startswith("!add"):
+            if await entry.isAddRaid(bot):
+                raid = Raid(0,entry.entry[0],message.author, entry.entry[1], entry.entry[2])
+                #await poGoserver.updateGymHuntrList()
+                await raid.updateCommunication(bot, poGoServer)
+                await bot.delete_message(message)
         elif message.content.lower() == "!purge":
             pass
-        elif isNotBot(message) : await client.delete_message(message)
+        #elif isNotBot(message) : await client.delete_message(message)
 
     elif message.channel == poGoServer.accueil:
         if message.content.lower().startswith("!free") and len(args) == 2:
