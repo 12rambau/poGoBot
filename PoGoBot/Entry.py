@@ -6,6 +6,7 @@ from data.pokedex import *
 from data.commandex import *
 from datetime import datetime, timedelta
 import unidecode
+from PoGoServer import PoGoServer
 
 class Entry:
 
@@ -52,7 +53,7 @@ class Entry:
             await bot.send_message(self.entry.channel, rappelCommand("nick"))
             return 0
 
-    async def isAddRaid(self, bot):
+    async def isAddRaid(self, bot, poGoServer):
         """transforme les données de la commande en tuple pour être utilisé par la command add, O sinon"""
         try:
             assert isinstance(self.entry, discord.Message)
@@ -69,6 +70,7 @@ class Entry:
 
             #manipulation lieu
             battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[3:]))).lower()
+            assert PoGoServer.IsUniquePlace(battlePlace, poGoServer.raids)
 
             #on place tout ça dans un tuple
             self.entry = (pokeName, battleTime, battlePlace)
@@ -77,7 +79,7 @@ class Entry:
             await bot.send_message(self.entry.channel, rappelCommand("add"))
             return 0
 
-    async def isAddRaidEx(self, bot):
+    async def isAddRaidEx(self, bot, poGoServer):
         """transforme les données de la commande en tuple pour être utilisé par la command add, O sinon"""
 
         try:
@@ -91,6 +93,7 @@ class Entry:
 
             #manipulation lieu
             battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[4:]))).lower()
+            assert PoGoServer.IsUniquePlace(battlePlace, poGoServer.raidsEx)
 
             #on place tout ça dans un tuple
             self.entry = ("t6", battleTime, battlePlace)

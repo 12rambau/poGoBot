@@ -5,6 +5,7 @@ import discord
 import asyncio
 from data.pokedex import *
 
+
 class Raid:
     """ classe permettant de décrire un raid instancié:
     - id: numero de la salle dans laquelle s'effectue le raid (il ne doit donc pas dépasser 5)
@@ -60,6 +61,7 @@ class Raid:
             self.listMsg = await bot.send_message(poGoServer.raid, content=msg, embed=self.embed())
         else:
             await bot.edit_message(self.listMsg,new_content=msg, embed=self.embed())
+
 
     def embed(self):
         """ Retourne un embed formaté pour être lu par discord"""

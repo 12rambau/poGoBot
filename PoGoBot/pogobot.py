@@ -8,6 +8,7 @@ import data.commandex
 from Raid import Raid
 from Entry import Entry
 
+
 Client = discord.Client()
 bot = commands.Bot(command_prefix = "")
 
@@ -101,16 +102,18 @@ async def on_message(message):
             pass
         elif message.content.lower().startswith("!add ex"):
             print("prout1")
-            if await entry.isAddRaidEx(bot):
+            if await entry.isAddRaidEx(bot, poGoServer):
                 print("prout")
                 raid = Raid(1,entry.entry[0],message.author, entry.entry[1], entry.entry[2])
                 await raid.updateCommunication(bot, poGoServer)
+                poGoServer.raidsEx[raid.id] = raid
                 await bot.delete_message(message)
         elif message.content.lower().startswith("!add"):
-            if await entry.isAddRaid(bot):
+            if await entry.isAddRaid(bot, poGoServer):
                 raid = Raid(0,entry.entry[0],message.author, entry.entry[1], entry.entry[2])
                 #await poGoserver.updateGymHuntrList()
                 await raid.updateCommunication(bot, poGoServer)
+                poGoServer.raids[raid.id] = raid
                 await bot.delete_message(message)
         elif message.content.lower() == "!purge":
             pass

@@ -10,7 +10,7 @@ class PoGoServer:
     def __init__(self, server):
         #initialisation du server
         self.server = server
-        
+
         #initialisation du compteur de cookie
         self.cookie = 0
 
@@ -18,10 +18,10 @@ class PoGoServer:
         #il sert a stocker les informtions données par le GymHuntrBot
         self.msgGymHuntr = 0
 
-        #initialisation des 3 dicionnaires de raid
-        self.Raids = {}
-        self.RaidsGymHuntr = {}
-        self.RaidsEx = {}
+        #initialisation des 3 listes de raid
+        self.raids = {}
+        self.raidsGymHuntr = {}
+        self.raidsEx = {}
 
         #initialisation des chaines du server
         for channel in server.channels:
@@ -48,3 +48,11 @@ class PoGoServer:
         """rajoute un cookie"""
         self.cookie += 1
         return self.cookie
+
+    def IsUniquePlace(place, dic):
+        """renvoit 1 si le raid n'existe pas dans le dictionnaire, 0 sinon"""
+        try:
+            raid = next(r for r in dic.values() if r.battlePlace == place)
+            return 0
+        except StopIteration:
+            return 1
