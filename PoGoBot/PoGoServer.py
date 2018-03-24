@@ -1,6 +1,9 @@
 #create and manage the PoGOBot server
 import re
 import discord
+from Entry import Entry
+from Raid import Raid
+import asyncio
 
 class PoGoServer:
 
@@ -48,11 +51,56 @@ class PoGoServer:
         """rajoute un cookie"""
         self.cookie += 1
         return self.cookie
+    async def purgeServer(self, bot):
+        """nettoie la channel de raid et tous les raids"""
+        await bot.purge_from(self.raid)
+        await self.purgeRaid(bot)
+        await self.purgeRaidEx(bot)
+        await self.updateRAidsChannel(bot)
 
-    def IsUniquePlace(place, dic):
-        """renvoit 1 si le raid n'existe pas dans le dictionnaire, 0 sinon"""
-        try:
-            raid = next(r for r in dic.values() if r.battlePlace == place)
-            return 0
-        except StopIteration:
-            return 1
+    async def purgeRaid(self, bot):
+        """ nettoie le serveur de tous ses raids
+        operation réalisée en 2 temps car on ne peut supprimer d'élément d'un dico en cours de parcour"""
+        raidChannels=[]
+        for channel in self.server.channels:
+            if PoGoServer._REGEX_RAID_.match(channel.name): raidChannels.append(channel.id)
+
+        for id in raidChannels:
+            await bot.delete_channel(bot.get_channel(id))
+
+    async def purgeRaidEx(self, bot):
+        """ajoute les raids encore en cours à la liste des raids ex"""
+        raidExChannels=[]
+        for channel in self.server.channels:
+            if PoGoServer._REGEX_RAID_EX_.match(channel.name): raidExChannels.append(channel.id)
+
+        for id in raidExChannels:
+            channel = bot.get_channel(id)
+            entry = Entry(next(m for m in await bot.pins_from(channel)), bot)
+            if entry.readExRaids(bot, self.server):
+                raid = Raid.RaidFromExEmbed(entry.entry)
+                self.raidsEx[raid.id] = raid
+            else:
+                await bot.delete_channel(channel)
+
+    async def updateRAidsChannel(self, bot):
+        """read all the actual informations in the Raid channel"""
+        #liste des raids Ex
+        await bot.send_message(self.raid, "**liste des Raids Ex**")
+        for raid in self.raidsEx.values():
+            await raid.updateCommunication(bot, self)
+        #list des raids GymHuntrBot
+        content = "**Vu sur GymHuntr autour de nous :**\n"
+        embed = discord.Embed()
+        field = ""
+        if len(list(self.raidsGymHuntr)) == 0:
+            content += "pas de raid en vue, c'est visiblement pas l'heure"
+        else:
+            for raid in self.raidsGymHuntr.values():
+                field += raid.outText()
+            embed.add_field(name= "Actualisés", value=field)
+        self.msgGymHuntr = await bot.send_message(self.raid, content=content, embed=embed)
+        #ecrire le message initiale des raid
+        await bot.send_message(self.raid, "**Liste des raids en cours**")
+        for raid in self.raids.values():
+            raid.updateCommunication(bot, self)

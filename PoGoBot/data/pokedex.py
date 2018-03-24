@@ -408,12 +408,14 @@ def lirePokeName(pokeName):
         num = pokeName[1:]
         if int(num):
             num = int(num)
-            if num < 7 and num > 0: return -num
+            if num < 6 and num > 0: return -num
+    elif pokeName.lower() == "tex":
+        return -6
+    else:
+        for ip, pokemon in enumerate(pokedex):
+            for nom in pokemon.values():
+                if nom == str(pokeName).lower(): return ip+1
 
-    for ip, pokemon in enumerate(pokedex):
-        for nom in pokemon.values():
-            if nom == str(pokeName).lower():
-                    return ip+1
     return 0
 
 def lirePokeId(pokeId):

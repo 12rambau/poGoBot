@@ -43,12 +43,20 @@ class Raid:
         self.listMsg = 0
         self.pinMsg = 0
 
+    def RaidFromExEmbed(args):
+        """creer un raid à partir des informations contenues dans l'embed traité par Entry"""
+        raid = Raid(1,args[0], args[1], args[2], args[3])
+        raid.participants = args[4]
+        raid.channel = args[5]
+        raid.pinMsg = args[6]
+        return raid
+
     async def updateCommunication(self, bot, poGoServer):
         """update the communication channel and messages"""
         if self.channel == 0:
             self.channel = await bot.create_channel(poGoServer.server, self.getRaidName())
         else:
-            await bot.edit_channel(cRaid.com, name=self.getRaidName())
+            await bot.edit_channel(self.channel, name=self.getRaidName())
 
         if self.pinMsg == 0:
             self.pinMsg = await bot.send_message(self.channel, embed=self.embed())

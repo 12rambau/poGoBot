@@ -23,6 +23,9 @@ async def on_ready():
     #recuperer le server
     poGoServer = PoGoServer(bot.get_server(os.environ["DISCORD_SERVER_ID"]))
 
+    #preparer le serveur
+    await poGoServer.purgeServer(bot)
+
 
 #ajout manuel d'evenement
 @bot.event
@@ -101,9 +104,7 @@ async def on_message(message):
         if message.content.lower() == "je vais pas rester":
             pass
         elif message.content.lower().startswith("!add ex"):
-            print("prout1")
             if await entry.isAddRaidEx(bot, poGoServer):
-                print("prout")
                 raid = Raid(1,entry.entry[0],message.author, entry.entry[1], entry.entry[2])
                 await raid.updateCommunication(bot, poGoServer)
                 poGoServer.raidsEx[raid.id] = raid

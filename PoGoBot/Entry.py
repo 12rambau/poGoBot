@@ -6,7 +6,7 @@ from data.pokedex import *
 from data.commandex import *
 from datetime import datetime, timedelta
 import unidecode
-from PoGoServer import PoGoServer
+#from PoGoServer import PoGoServer
 
 class Entry:
 
@@ -70,7 +70,7 @@ class Entry:
 
             #manipulation lieu
             battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[3:]))).lower()
-            assert PoGoServer.IsUniquePlace(battlePlace, poGoServer.raids)
+            assert Entry.IsUniquePlace(battlePlace, poGoServer.raids)
 
             #on place tout ça dans un tuple
             self.entry = (pokeName, battleTime, battlePlace)
@@ -93,13 +93,42 @@ class Entry:
 
             #manipulation lieu
             battlePlace = unidecode.unidecode(u"%s" %(' '.join(args[4:]))).lower()
-            assert PoGoServer.IsUniquePlace(battlePlace, poGoServer.raidsEx)
+            assert Entry.IsUniquePlace(battlePlace, poGoServer.raidsEx)
 
             #on place tout ça dans un tuple
-            self.entry = ("t6", battleTime, battlePlace)
+            self.entry = ("tex", battleTime, battlePlace)
             return 1
         except (AssertionError, ValueError):
             await bot.send_message(self.entry.channel, rappelCommand("add ex"))
+            return 0
+
+    def readExRaids(self, bot, server):
+        """retirer les informations du raid depuis l'embed"""
+        assert isinstance(self.entry, discord.Message)
+        embed = next (e for e in self.entry.embeds)
+
+        pokeName = embed["title"]
+
+        battlePlace = embed["fields"][0]["name"]
+
+        args = embed["fields"][0]["value"].split("\n")
+        chef = args[0].replace("**chef:** @", "")
+        chef = next(m for m in server.members if (m.name == chef or m.nick == chef) )
+
+        temps = args[2][-16:]
+        temps = datetime.strptime(temps, "%d/%m/%Y %H:%M")
+
+        nbParticipant = int(args[3].split(" ")[0].replace("**", ""))
+        participants = []
+        if nbParticipant > 0:
+            footer = embed["footer"]["text"].split("@")
+            footer.pop(0)
+            for name in footer:
+                participants.append(next(m for m in server.members if (m.name == name or m.nick == name)))
+        if temps > datetime.now():
+            self.entry = (pokeName, chef, temps, battlePlace, participants, self.entry.channel, self.entry)
+            return 1
+        else:
             return 0
 
     def readHour(time):
@@ -112,5 +141,12 @@ class Entry:
         except ValueError:
             return 0
 
+    def IsUniquePlace(place, dic):
+        """renvoit 1 si le raid n'existe pas dans le dictionnaire, 0 sinon"""
+        try:
+            raid = next(r for r in dic.values() if r.battlePlace == place)
+            return 0
+        except StopIteration:
+            return 1
 if __name__=="__main__":
     pass
