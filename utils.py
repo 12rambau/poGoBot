@@ -16,7 +16,7 @@ def isNotRaid(m):
     """ prend en entre un discord.on_message
     renvoit 0 si c'est un message qui doit rester dans la console de raid
     1 sinon"""
-    if m.content.lower() == "**liste des raids en cours**" or m.content.startswith("**Vu sur GymHuntr autour de nous :**") or m.content.lower().startswith("raid en cour sur")or m.content.lower() == "**liste des raids ex**": return 0
+    if m.content.lower() == "**liste des raids en cours**" or m.content.startswith("**Vu sur GymHuntr autour de nous :**") or m.content.lower().startswith("raid en cours sur")or m.content.lower() == "**liste des raids ex**": return 0
     return 1
 def isRappelCommand(m):
     """ renvoit 1 si c'est un rappel de commande 0 sinon"""
@@ -170,9 +170,9 @@ def sendHelp():
     message = "**Voilà un petit rappel des commandes que tu peux utiliser avec le PoGoBot**\n\n"
 
     for name, command in commandex.items():
-        message += str("**%s:**\t\t%s\n" %(name, command))
+        message += str("**%s :**\t\t%s\n" %(name, command))
 
-    message += "\nPour des renseignements plus prescis rend toi directement sur la doc en ligne :\n <https://github.com/12rambau/poGoBot/wiki>"
+    message += "\nPour plus de renseignements, n'hésite pas à consulter la doc en ligne :\n <https://github.com/12rambau/poGoBot/wiki>"
     return message
 def setAbled(before, after):
     """ renvoit 1 si on vient de retirer disable au membre"""

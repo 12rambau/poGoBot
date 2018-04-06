@@ -35,13 +35,13 @@ async def addToListe(cRaid):
 
     if not isinstance(cRaid, ChannelRaid): return 0
     await client.purge_from(cRaidAdd, check=isNotRaid)
-    content = str("raid en cour sur <#%s>" %(cRaid.com.id))
+    content = str("Raid en cours sur <#%s>" %(cRaid.com.id))
     msg = await client.send_message(cRaidAdd, content=content, embed=cRaid.raid.embed())
     cRaid.listMsg = msg
     return 1
 async def editListe(cRaid):
     """editer le message corresponant au raid selectionné"""
-    msg = str("raid en cour sur <#%s>" %(cRaid.com.id))
+    msg = str("Raid en cours sur <#%s>" %(cRaid.com.id))
     await client.edit_message(cRaid.listMsg, new_content=msg, embed=cRaid.raid.embed())
 async def removeFromListe(cRaid):
     """retirer un raid périmé ou abandonné"""
@@ -83,7 +83,7 @@ async def updateGymList(msg):
     embed = discord.Embed()
     field = ""
     if len(list(cGyms)) == 0:
-        content += "pas de raid en vue, c'est visiblement pas l'heure"
+        content += "Pas de raid en vue, c'est visiblement pas l'heure."
     else:
         for gym in cGyms.values():
             field += gym.outText()
@@ -249,7 +249,7 @@ async def on_ready():
         await client.delete_channel(client.get_channel(cId))
 
     #liste des raids Ex déjà présents
-    await client.send_message(cRaidAdd, "**liste des Raids Ex**")
+    await client.send_message(cRaidAdd, "**Liste des Raids Ex**")
     for cCurrent in server.channels:
         if regexEx.match(cCurrent.name):
             pinMsg = next(m for m in await client.pins_from(cCurrent))
@@ -628,7 +628,7 @@ async def on_member_update(before, after):
     try:
         intro = next(m for m in await client.pins_from(cAdmin) if m.content.startswith("!intro"))
     except StopIteration:
-        await client.send_message(after, "va reveiller ton admin et dis lui qu'il a oublié le message d'accueil. Au fait BONJOUR !!")
+        await client.send_message(after, "Va réveiller ton admin et dis lui qu'il a oublié le message d'accueil. Au fait BONJOUR !")
     await client.send_message(after, intro.content.replace("!intro", ""))
 
 @client.event
@@ -636,9 +636,9 @@ async def on_member_join(member):
     try:
         role = next(r for r in server.roles if r.name == "disable")
     except StopIteration:
-        await client.send_message(server.owner, "votre server ne comporte pas de sécurrité n'importe qui peut y faire n'importe quoi")
+        await client.send_message(server.owner, "Votre serveur ne comporte pas de sécurité, n'importe qui peut y faire n'importe quoi !")
 
     await client.add_roles(member, role)
-    await client.send_message(member, "Pour activer ta préscence sur le forum %s, merci de nous envoyer un screenshot de ton profil sur le salon #accueil du forum" %server.name)
+    await client.send_message(member, "Pour activer ta présence sur le forum %s, merci de nous envoyer un screenshot de ton profil sur le salon #accueil du forum." %server.name)
 
 client.run(os.environ['DISCORD_TOKEN'])
