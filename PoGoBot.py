@@ -270,7 +270,7 @@ async def on_ready():
 
     #ecrire le message initiale des raid
     await client.send_message(cRaidAdd, "**Liste des raids en cours**")
-
+    
     print("Bot is ready and back online !")
 
     #changer les couleurs des utilisateurs en attente
