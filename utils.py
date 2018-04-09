@@ -167,7 +167,7 @@ def isLevel(lvl):
 def sendHelp():
     """construct the help message to send to the user"""
 
-    message = "**Voilà un petit rappel des commandes que tu peux utiliser avec le PoGoBot**\n\n"
+    message = "**Voilà un petit rappel des commandes que tu peux utiliser avec le PoGoBot en remplacant les valeurs `surlignées` : **\n*Ex: `pokemon` => pichu* \n\n"
 
     for name, command in commandex.items():
         message += str("**%s :**\t\t%s\n" %(name, command))
