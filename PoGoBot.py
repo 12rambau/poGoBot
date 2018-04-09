@@ -362,7 +362,7 @@ async def on_message(message):
                         try:
                             user = next( m for m in client.get_all_members() if m.id == userId)
                         except StopIteration:
-                            await client.send_message(message.channel, rappelCommand("in"))
+                            await client.send_message(message.channel, rappelCommand("in @"))
                             return
 
                         cCurrent.raid.ajouterParticipant(user)
@@ -372,7 +372,7 @@ async def on_message(message):
                         try:
                             user = next( m for m in client.get_all_members() if m.id == userId)
                         except StopIteration:
-                            await client.send_message(message.channel, rappelCommand("out"))
+                            await client.send_message(message.channel, rappelCommand("out @"))
                             return
 
                         cCurrent.raid.retirerParticipant(user)
@@ -429,7 +429,7 @@ async def on_message(message):
                     try:
                         user = next( m for m in client.get_all_members() if m.id == userId)
                     except StopIteration:
-                        await client.send_message(message.channel, rappelCommand("in"))
+                        await client.send_message(message.channel, rappelCommand("in @"))
                         return
 
                     cCurrent.raid.ajouterParticipant(user)
@@ -439,7 +439,7 @@ async def on_message(message):
                     try:
                         user = next( m for m in client.get_all_members() if m.id == userId)
                     except StopIteration:
-                        await client.send_message(message.channel, rappelCommand("out"))
+                        await client.send_message(message.channel, rappelCommand("out @"))
                         return
 
                     cCurrent.raid.retirerParticipant(user)
@@ -541,7 +541,7 @@ async def on_message(message):
                 assert (isPokemon(pokeName) or isOeufName(pokeName))
                 assert isUniquePlace(battlePlace, cRaids)
             except AssertionError:
-                await client.send_message(message.channel, rappelCommand("add"))
+                await client.send_message(message.channel, rappelCommand("add egg_add pokemon"))
                 return
 
             raid = Raid(0, ChannelRaid.nb_channel+1,pokeName,message.author, battleTime, battlePlace)
