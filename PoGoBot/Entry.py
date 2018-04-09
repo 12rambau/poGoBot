@@ -102,6 +102,22 @@ class Entry:
             await bot.send_message(self.entry.channel, rappelCommand("add ex"))
             return 0
 
+    async def isPlayer(self, bot, server):
+        """ transforme le contenu de entry en un discord.member soit à partir du nom soit l'auteur"""
+        args = self.entry.content.split(" ")
+        if len(args) == 1:
+            self.entry = self.entry.content.author
+        else:
+            try:
+                assert len(args) == 2
+                userId = args[1].replace('<@', '').replace('>', '').replace('!','')
+                user = next( m for m in bot.get_all_members() if m.id == userId)
+                self.entry = user
+            except (StopIteration, AssertionError):
+                await bot.send_message(self.entry.content.channel, rappelCommand("in"))
+                return 0
+        return 1
+
     def readExRaids(self, bot, server):
         """retirer les informations du raid depuis l'embed"""
         assert isinstance(self.entry, discord.Message)
@@ -148,5 +164,16 @@ class Entry:
             return 0
         except StopIteration:
             return 1
+
+    def getRaidId(self):
+        """recupère l'id du raid dans son nom"""
+        try:
+            index = self.entry.channel.name.find("_")
+            num = self.entry.channel.name[:index]
+            self.entry = int(num)
+            return 1
+        except ValueError:
+            return 0
+
 if __name__=="__main__":
     pass

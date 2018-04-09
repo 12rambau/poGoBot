@@ -7,6 +7,7 @@ from PoGoServer import PoGoServer
 import data.commandex
 from Raid import Raid
 from Entry import Entry
+import util
 
 
 Client = discord.Client()
@@ -25,7 +26,6 @@ async def on_ready():
 
     #preparer le serveur
     await poGoServer.purgeServer(bot)
-
 
 #ajout manuel d'evenement
 @bot.event
@@ -61,34 +61,26 @@ async def on_message(message):
 
     #ecouter les channels de raid Ex
     elif PoGoServer._REGEX_RAID_EX_.match(message.channel.name):
-            #numRaid = getNumChannel(message.channel.name)
-            if True:#cCurrent.isRaid():
-                if args[0].lower() == "!in" and len(args) == 2:
-                    pass
-                elif args[0].lower() == "!out" and len(args) == 2:
-                    pass
-                elif message.content.lower() == "!in":
-                    pass
-                elif message.content.lower() == "!out":
-                    pass
-                elif message.content.lower() == '!abort':
-                    pass
-                elif message.content.lower().startswith("!chef"):
-                    pass
-                elif args[0].lower() == "!edit" and len(args) == 2:
-                    pass
+        if entry.getRaidId():
+            if message.content.lower().startswith("!in"):
+                pass
+            elif message.content.lower().startswith("!out"):
+                pass
+            elif message.content.lower() == '!abort':
+                pass
+            elif message.content.lower().startswith("!chef"):
+                pass
+            elif args[0].lower() == "!edit" and len(args) == 2:
+                pass
 
     #écoute des channels de raid
     elif PoGoServer._REGEX_RAID_.match(message.channel.name):
+
         #numRaid = getNumChannel(message.channel.name)
         if True: #Current.isRaid():
-            if args[0].lower() == "!in" and len(args) == 2:
-                pass
-            elif args[0].lower() == "!out" and len(args) == 2:
-                pass
-            elif message.content.lower() == "!in":
-                pass
-            elif message.content.lower() == "!out":
+            if message.content.lower().startswith("!in"):
+
+            elif message.content.lower().startswith("!out"):
                 pass
             elif message.content.lower() == '!abort':
                 pass
@@ -101,9 +93,7 @@ async def on_message(message):
 
     #on écoute la channel d'add
     elif message.channel == poGoServer.raid:
-        if message.content.lower() == "je vais pas rester":
-            pass
-        elif message.content.lower().startswith("!add ex"):
+        if message.content.lower().startswith("!add ex"):
             if await entry.isAddRaidEx(bot, poGoServer):
                 raid = Raid(1,entry.entry[0],message.author, entry.entry[1], entry.entry[2])
                 await raid.updateCommunication(bot, poGoServer)
