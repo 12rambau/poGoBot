@@ -242,7 +242,8 @@ async def on_ready():
             await client.purge_from(cRaidAdd)
         elif cCurrent.name.lower() == "admin":
             cAdmin = cCurrent
-            await client.send_message(cAdmin, "Bot is ready and back online !")
+            #seulement pour le debug
+            #await client.send_message(cAdmin, "Bot is ready and back online !")
         elif regex.match(cCurrent.name):
             cToDelete.append(cCurrent.id)
     for cId in cToDelete:
@@ -269,7 +270,7 @@ async def on_ready():
 
     #ecrire le message initiale des raid
     await client.send_message(cRaidAdd, "**Liste des raids en cours**")
-    
+
     print("Bot is ready and back online !")
 
     #changer les couleurs des utilisateurs en attente
