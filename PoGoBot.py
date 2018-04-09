@@ -250,7 +250,7 @@ async def on_ready():
         await client.delete_channel(client.get_channel(cId))
 
     #liste des raids Ex déjà présents
-    await client.send_message(cRaidAdd, "**Liste des Raids Ex**")
+    await client.send_message(cRaidAdd, "**Liste des Raids Ex :**")
     for cCurrent in server.channels:
         if regexEx.match(cCurrent.name):
             pinMsg = next(m for m in await client.pins_from(cCurrent))
@@ -269,8 +269,8 @@ async def on_ready():
     await client.send_message(cRaidAdd, "je vais pas rester")
 
     #ecrire le message initiale des raid
-    await client.send_message(cRaidAdd, "**Liste des raids en cours**")
-    
+    await client.send_message(cRaidAdd, "**Liste des raids en cours :**")
+
     print("Bot is ready and back online !")
 
     #changer les couleurs des utilisateurs en attente
