@@ -410,5 +410,5 @@ commandex = {
     "purge":            "!purge",
     "free":             "!free @`pseudo`",
     "cookie":           "!cookie",
-    "add ex":         "!add ex `dd/mm/yyyy` `hh:mm`  `lieu]`",
+    "add ex":         "!add ex `dd/mm/yyyy` `hh:mm`  `lieu`",
     }
