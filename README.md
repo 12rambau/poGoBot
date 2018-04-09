@@ -11,6 +11,7 @@ Si vous êtes intéressé par l'installation du PoGoBot je vous invite à rejoin
 Nous ne bénéficions pour l'instant pas de colaborateur étrangés. Si un devellopeur se montre interessé, qu'il n'hesite pas me contacter via la section [issues](https://github.com/12rambau/poGoBot/issues)
 
 ## TO DO avant prochain release
-- [ ] gestion des raid ex
+- [x] gestion des raid ex
 - [ ] ajouter des stats sur les raids
-- [ ] lire les entrées de gymhuntrBot
+- [x] lire les entrées de gymhuntrBot
+- [ ] revoir le rangement du code

@@ -4,6 +4,8 @@ from data import *
 import re
 import unidecode
 import discord
+from Channel import *
+from Raid import *
 
 #function hors loop
 def isNotBot(m):
@@ -14,9 +16,8 @@ def isNotRaid(m):
     """ prend en entre un discord.on_message
     renvoit 0 si c'est un message qui doit rester dans la console de raid
     1 sinon"""
-    if m.content.lower() == "liste des raids en cours" or m.content.lower().startswith("raid en cour sur"): return 0
+    if m.content.lower() == "**liste des raids en cours**" or m.content.startswith("**Vu sur GymHuntr autour de nous :**") or m.content.lower().startswith("raid en cours sur")or m.content.lower() == "**liste des raids ex**": return 0
     return 1
-
 def isRappelCommand(m):
     """ renvoit 1 si c'est un rappel de commande 0 sinon"""
     return m.content.startswith("Comme je suis sympa je te redonne la commande que tu as essayé de taper :")
@@ -59,6 +60,9 @@ def lirePokeName(pokeName):
             num = int(num)
             if num < 6 and num > 0: return -num
 
+    if pokeName.lower() == "tex":
+        return -6
+
     for ip, pokemon in enumerate(pokedex):
         for nom in pokemon.values():
             if nom == str(pokeName).lower():
@@ -82,13 +86,22 @@ def teamName(team):
         if team == trad["fr"]: return teamName
 
     return 0
-def isUniquePlace(battlePlace, cRaids):
-    """retourne 1 si l'endroit n'a jamais été utilisé 0 sinon"""
-    if not isinstance(battlePlace, str): return 0
-    for cCurrent in cRaids.values():
-        if battlePlace == cCurrent.raid.battlePlace: return 0
+def isUniquePlace(battlePlace, RaidsList):
+    """retourne 1 si l'endroit n'est pas utilisé 0 sinon"""
+    assert isinstance(battlePlace, str)
 
-    return 1
+    libre = 1
+    for raidElement in RaidsList.values():
+        if battlePlace == raidElement.raid.battlePlace: libre = 0
+    return libre
+def isUniquePlaceGym(battlePlace, RaidsList):
+    """retourne 1 si l'endroit n'est pas utilisé 0 sinon"""
+    assert isinstance(battlePlace, str)
+
+    libre = 1
+    for raidElement in RaidsList.values():
+        if battlePlace == raidElement.battlePlace: libre = 0
+    return libre
 def isOeufName(pokeName):
     """retourne 1 si c'est un nom d'oeuf, O sinon"""
     if isinstance(pokeName, str):
@@ -99,14 +112,15 @@ def isOeufName(pokeName):
 def rappelCommand(commandName):
     """envoi à l'utilisateur un message permettant de reexpliquer la commande"""
     return str("Comme je suis sympa je te redonne la commande que tu as essayé de taper :\n %s" %commandex[commandName])
-def getTimeStr(time, label):
+def getTimeStr(time, label, ex):
     """return the str corresponding to the time at (%H:%M) format with the appropriate label"""
 
+    timeFormat = "%d/%m/%Y %H:%M" if ex else "%H:%M"
     if time == 0:
-        temps = str("%s: ? \n" %label)
+        temps = str("%s ?\n" %label)
     else:
         assert isinstance(time, datetime.datetime)
-        temps = str("%s: %s \n" %(label, time.strftime("%H:%M")))
+        temps = str("%s %s\n" %(label, time.strftime(timeFormat)))
 
     return temps
 def isHour(time):
@@ -139,7 +153,7 @@ def getNumChannel(name):
     """retourne l'id du salon"""
     index = name.find("_")
     numRaid = int(name[:index])
-    assert(numRaid > 0)
+    #assert(numRaid > 0)
 
     return numRaid
 def isLevel(lvl):
@@ -153,12 +167,12 @@ def isLevel(lvl):
 def sendHelp():
     """construct the help message to send to the user"""
 
-    message = "**Voilà un petit rappel des commandes que tu peux utiliser avec le PoGoBot**\n\n"
+    message = "**Voilà un petit rappel des commandes que tu peux utiliser avec le PoGoBot en remplacant les valeurs `surlignées` : **\n*Ex: `pokemon` => pichu* \n\n"
 
     for name, command in commandex.items():
-        message += str("**%s:**\t\t%s\n" %(name, command))
+        message += str("**%s :**\t\t%s\n" %(name, command))
 
-    message += "\nPour des renseignements plus prescis rend toi directement sur la doc en ligne :\n <https://github.com/12rambau/poGoBot/wiki>"
+    message += "\nPour plus de renseignements, n'hésite pas à consulter la doc en ligne :\n <https://github.com/12rambau/poGoBot/wiki>"
     return message
 def setAbled(before, after):
     """ renvoit 1 si on vient de retirer disable au membre"""
@@ -180,10 +194,58 @@ def isAble(member):
         if role.name == "disable": return 0
 
     return 1
+def lireLieu(lieu):
+    """renvoit le lieu issu de GymHuntr formaté comme il se doit"""
+    assert isinstance(lieu, str)
+
+    return unidecode.unidecode(u"%s" %lieu.lower().replace(".**", "").replace("**", ""))
+def lireHeure(temps):
+    """retourne le temps donné par GymHuntr au format attendu par Raid"""
+    assert isinstance(temps, str)
+
+    temps = temps.replace("*Raid Ending: ", "").replace("*Raid Starting: ", "").replace("*", "")
+    temps = temps.split(" ")
+    temps = datetime.timedelta(hours= int(temps[0]), minutes=int(temps[2]), seconds=int(temps[4]))
+    temps = datetime.datetime.now() + temps
+
+    return temps
+def updateGym(raid, gymList):
+    """replace the old gym informations with the updated one"""
+    #assert isinstance(raid, Raid)
+
+    index = -1
+    for key, gym in gymList.items():
+        if gym.battlePlace == raid.battlePlace:
+            index = key
+            break
+
+    if not index == -1 : gymList[index] = raid
+def removeGym(raid, gymList):
+    """remove the raid that has the same place as the parameter raid"""
+    #assert isinstance(raid, Raid)
+
+    index = -1
+    for key, gym in gymList.items():
+        if gym.battlePlace == raid.battlePlace:
+            index = key
+            break
+    if not index == -1: gymList.pop(key)
+def readGymEmbed(embed):
+    """return the tuple of crucial information (pokeName, battlePlace, battleTime)"""
+
+    args = embed["description"].split ("\n")
+    pokeName = ""
+    if not embed["title"].find("Raid is starting soon!") == -1:
+        pokeName = str("t%s" %embed["title"].split(" ")[1])
+        battleTime = lireHeure(args[1])
+    elif not embed["title"].find("Raid has started!") == -1:
+        pokeName = args[1].lower()
+        battleTime = lireHeure(args[3])
+    else:
+        raise Exception("pas reussi à lire")
+
+    battlePlace = lireLieu(args[0])
+    return (pokeName, battlePlace, battleTime)
 
 if __name__=="__main__":
-    #debut des test unitaires
-    string = "14_machin"
-    print ("%i" %getNumChannel(string))
-    string = "2_machin"
-    print ("%i" %getNumChannel(string))
+    pass
