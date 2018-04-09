@@ -16,8 +16,7 @@ def isNotRaid(m):
     """ prend en entre un discord.on_message
     renvoit 0 si c'est un message qui doit rester dans la console de raid
     1 sinon"""
-    if m.content.lower() == "**liste des raids en cours :**" or
-    m.content.lower() == "**Liste des Raids Ex :**" or m.content.startswith("**Vu sur GymHuntr autour de nous :**") or m.content.lower().startswith("raid en cours sur")or m.content.lower() == "**liste des raids ex**": return 0
+    if m.content == "**Liste des raids en cours :**" or m.content == "**Liste des Raids Ex :**" or m.content.startswith("**Vu sur GymHuntr autour de nous :**") or m.content.lower().startswith("raid en cours sur"): return 0
     return 1
 def isRappelCommand(m):
     """ renvoit 1 si c'est un rappel de commande 0 sinon"""
@@ -110,9 +109,14 @@ def isOeufName(pokeName):
         regexEx = re.compile(r"tex")
         if regexOeuf.match(pokeName) or regexEx.match(pokeName): return 1
     return 0
-def rappelCommand(commandName):
+def rappelCommand(commandeNames):
     """envoi à l'utilisateur un message permettant de reexpliquer la commande"""
-    return str("Comme je suis sympa je te redonne la commande que tu as essayé de taper :\n %s" %commandex[commandName])
+    commandeNames = commandeNames.split("_")
+    rappel = "Comme je suis sympa je te redonne la commande que tu as essayé de taper :\n\n"
+    for commandeName in commandeNames:
+        rappel += str("%s\n" %commandex[commandeName])
+
+    return rappel
 def getTimeStr(time, label, ex):
     """return the str corresponding to the time at (%H:%M) format with the appropriate label"""
 
